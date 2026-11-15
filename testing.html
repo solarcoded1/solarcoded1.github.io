@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow — Clean & Modern To-Do List</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    animation: {
+                        'slide-in': 'slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-out': 'fadeOut 0.2s ease-out forwards',
+                    },
+                    keyframes: {
+                        slideIn: {
+                            '0%': { opacity: '0', transform: 'translateY(-10px) scale(0.98)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        },
+                        fadeOut: {
+                            '0%': { opacity: '1', transform: 'scale(1)' },
+                            '100%': { opacity: '0', transform: 'scale(0.95)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
+
+        /* Custom checkbox styling */
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.35rem;
+            height: 1.35rem;
+            border-radius: 9999px;
+            border: 2px solid #cbd5e1;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        @media (prefers-color-scheme: dark) {
+            .custom-checkbox {
+                border-color: #475569;
+            }
+        }
+        .custom-checkbox:hover {
+            border-color: #6366f1;
+        }
+        .custom-checkbox:checked {
+            background-color: #6366f1;
+            border-color: #6366f1;
+        }
+        .custom-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+
+        /* Hide default calendar icon in webkit to style cleanly if needed, or keep functional */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+        @media (prefers-color-scheme: dark) {
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                filter: invert(1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200 flex flex-col">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-2xl mx-auto px-4 py-8 sm:py-12 flex-grow">
+        
+        <!-- Header Section -->
+        <header class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2.5 mb-1">
+                    <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">TaskFlow</h1>
+                </div>
+                <p id="current-date" class="text-sm text-slate-500 dark:text-slate-400 font-medium"></p>
+            </div>
+            
+            <!-- Progress Pill -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl px-4 py-2.5 shadow-sm flex items-center gap-3 self-start sm:self-auto">
+                <div class="flex flex-col">
+                    <span class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Completion</span>
+                    <span id="progress-text" class="text-sm font-bold text-slate-700 dark:text-slate-200">0% Done</span>
+                </div>
+                <div class="w-16 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-brand-500 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Add New Task Form Card -->
+        <section class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 mb-6 transition-all focus-within:ring-2 focus-within:ring-brand-500/30 focus-within:border-brand-500">
+            <form id="todo-form" class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <div class="text-slate-400 dark:text-slate-500">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="todo-input" 
+                        placeholder="What needs to be done?" 
+                        autocomplete="off"
+                        class="w-full bg-transparent text-base sm:text-lg text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
+                    >
+                </div>
+
+                <!-- Options Row: Priority, Due Date & Submit Button -->
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <!-- Priority Selector -->
+                        <div class="relative flex items-center">
+                            <label for="todo-priority" class="sr-only">Priority</label>
+                            <select 
+                                id="todo-priority" 
+                                class="appearance-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-medium rounded-xl pl-3 pr-8 py-2 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                            >
+                                <option value="low">Low Priority</option>
+                                <option value="medium" selected>Medium Priority</option>
+                                <option value="high">High Priority</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute right-2.5 pointer-events-none"></i>
+                        </div>
+
+                        <!-- Due Date Selector -->
+                        <div class="relative flex items-center">
+                            <label for="todo-date" class="sr-only">Due Date</label>
+                            <input 
+                                type="date" 
+                                id="todo-date" 
+                                class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-medium rounded-xl px-3 py-1.5 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                            >
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-medium text-sm px-5 py-2 rounded-xl shadow-sm shadow-brand-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                        <span>Add Task</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Filter & Stats Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 px-1">
+            <!-- Filter Tabs -->
+            <div class="inline-flex bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl self-start" role="tablist">
+                <button 
+                    data-filter="all" 
+                    class="filter-btn active px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs"
+                >
+                    All
+                </button>
+                <button 
+                    data-filter="active" 
+                    class="filter-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                >
+                    Active
+                </button>
+                <button 
+                    data-filter="completed" 
+                    class="filter-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                >
+                    Completed
+                </button>
+            </div>
+
+            <!-- Counter & Clear Completed -->
+            <div class="flex items-center justify-between sm:justify-end gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                <span id="items-left" class="font-medium">0 tasks left</span>
+                <button 
+                    id="clear-completed-btn" 
+                    class="text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 font-medium transition-colors hidden cursor-pointer"
+                >
+                    Clear completed
+                </button>
+            </div>
+        </div>
+
+        <!-- Todo List Container -->
+        <main>
+            <ul id="todo-list" class="space-y-2.5">
+                <!-- Tasks will be dynamically injected here -->
+            </ul>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center text-center py-14 px-4 bg-white/50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl mt-2">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex items-center justify-center mb-3">
+                    <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+                </div>
+                <h3 id="empty-title" class="text-base font-semibold text-slate-700 dark:text-slate-200 mb-1">No tasks yet</h3>
+                <p id="empty-subtitle" class="text-sm text-slate-500 dark:text-slate-400 max-w-xs">Add a task above to get started and organize your day.</p>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Custom Toast Notification (Replaces alert) -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 dark:bg-slate-800 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg border border-slate-700/50 flex items-center gap-2.5">
+            <i id="toast-icon" data-lucide="info" class="w-4 h-4 text-brand-400"></i>
+            <span id="toast-message">Notification</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-slate-400 dark:text-slate-600">
+        <p>Double-click any task or press the edit icon to modify • Saved automatically</p>
+    </footer>
+
+    <script>
+        /**
+         * TaskFlow Application Logic
+         * Manages state, localStorage persistence, filtering, inline editing, and smooth DOM updates.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // State Management
+            const STORAGE_KEY = 'taskflow_todos_v1';
+            let todos = [];
+            let currentFilter = 'all'; // 'all' | 'active' | 'completed'
+            let editingId = null;
+
+            // DOM Elements
+            const todoForm = document.getElementById('todo-form');
+            const todoInput = document.getElementById('todo-input');
+            const todoPriority = document.getElementById('todo-priority');
+            const todoDate = document.getElementById('todo-date');
+            const todoList = document.getElementById('todo-list');
+            const emptyState = document.getElementById('empty-state');
+            const emptyTitle = document.getElementById('empty-title');
+            const emptySubtitle = document.getElementById('empty-subtitle');
+            const itemsLeftEl = document.getElementById('items-left');
+            const clearCompletedBtn = document.getElementById('clear-completed-btn');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const currentDateEl = document.getElementById('current-date');
+            const progressTextEl = document.getElementById('progress-text');
+            const progressBarEl = document.getElementById('progress-bar');
+
+            // Toast Notification Elements
+            const toastEl = document.getElementById('toast');
+            const toastMessageEl = document.getElementById('toast-message');
+            let toastTimeout;
+
+            /**
+             * Display a non-intrusive toast message
+             */
+            function showToast(message) {
+                clearTimeout(toastTimeout);
+                toastMessageEl.textContent = message;
+                toastEl.classList.remove('translate-y-20', 'opacity-0');
+                toastTimeout = setTimeout(() => {
+                    toastEl.classList.add('translate-y-20', 'opacity-0');
+                }, 2800);
+            }
+
+            /**
+             * Set formatted header date
+             */
+            function renderHeaderDate() {
+                const options = { weekday: 'long', month: 'long', day: 'numeric' };
+                currentDateEl.textContent = new Date().toLocaleDateString(undefined, options);
+            }
+
+            /**
+             * Load tasks from LocalStorage (with starter tasks on first visit)
+             */
+            function loadTodos() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        todos = JSON.parse(stored);
+                    } else {
+                        // Seed friendly starter tasks for first-time experience
+                        const today = new Date().toISOString().split('T')[0];
+                        todos = [
+                            {
+                                id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+                                text: 'Welcome to TaskFlow! Click the circle to complete this task',
+                                completed: false,
+                                priority: 'medium',
+                                dueDate: today,
+                                createdAt: Date.now()
+                            },
+                            {
+                                id: crypto.randomUUID ? crypto.randomUUID() : (Date.now() + 1).toString(),
+                                text: 'Double-click a task or click the pencil icon to edit it',
+                                completed: false,
+                                priority: 'low',
+                                dueDate: '',
+                                createdAt: Date.now() - 1000
+                            }
+                        ];
+                        saveTodos();
+                    }
+                } catch (error) {
+                    console.error('Failed to load todos from localStorage:', error);
+                    todos = [];
+                }
+            }
+
+            /**
+             * Save tasks to LocalStorage
+             */
+            function saveTodos() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+                } catch (error) {
+                    console.error('Failed to save todos to localStorage:', error);
+                    showToast('Unable to save changes locally.');
+                }
+            }
+
+            /**
+             * Format YYYY-MM-DD into a human-friendly badge & check if overdue
+             */
+            function formatDueDate(dateString, isCompleted) {
+                if (!dateString) return null;
+
+                const [year, month, day] = dateString.split('-').map(Number);
+                const due = new Date(year, month - 1, day);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const diffTime = due - today;
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+                let label = '';
+                let isOverdue = false;
+                let isToday = false;
+
+                if (diffDays === 0) {
+                    label = 'Today';
+                    isToday = true;
+                } else if (diffDays === 1) {
+                    label = 'Tomorrow';
+                } else if (diffDays === -1) {
+                    label = 'Yesterday';
+                    isOverdue = !isCompleted;
+                } else if (diffDays < -1) {
+                    label = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    isOverdue = !isCompleted;
+                } else {
+                    label = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                }
+
+                return { label, isOverdue, isToday };
+            }
+
+            /**
+             * Get badge styling for priority levels
+             */
+            function getPriorityBadge(priority) {
+                switch (priority) {
+                    case 'high':
+                        return {
+                            label: 'High',
+                            classes: 'bg-rose-50 text-rose-600 border-rose-200/80 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800/60'
+                        };
+                    case 'low':
+                        return {
+                            label: 'Low',
+                            classes: 'bg-emerald-50 text-emerald-600 border-emerald-200/80 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/60'
+                        };
+                    case 'medium':
+                    default:
+                        return {
+                            label: 'Medium',
+                            classes: 'bg-amber-50 text-amber-600 border-amber-200/80 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800/60'
+                        };
+                }
+            }
+
+            /**
+             * Update counters, progress bar, and filter button states
+             */
+            function updateStats() {
+                const total = todos.length;
+                const completedCount = todos.filter(t => t.completed).length;
+                const activeCount = total - completedCount;
+
+                // Update items left text
+                itemsLeftEl.textContent = `${activeCount} ${activeCount === 1 ? 'task' : 'tasks'} left`;
+
+                // Show/hide clear completed button
+                if (completedCount > 0) {
+                    clearCompletedBtn.classList.remove('hidden');
+                } else {
+                    clearCompletedBtn.classList.add('hidden');
+                }
+
+                // Update progress bar
+                const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+                progressTextEl.textContent = `${percentage}% Done`;
+                progressBarEl.style.width = `${percentage}%`;
+
+                // Update active tab styling
+                filterBtns.forEach(btn => {
+                    const isMatch = btn.dataset.filter === currentFilter;
+                    if (isMatch) {
+                        btn.classList.add('bg-white', 'dark:bg-slate-900', 'text-slate-900', 'dark:text-white', 'shadow-xs');
+                        btn.classList.remove('text-slate-600', 'dark:text-slate-400');
+                    } else {
+                        btn.classList.remove('bg-white', 'dark:bg-slate-900', 'text-slate-900', 'dark:text-white', 'shadow-xs');
+                        btn.classList.add('text-slate-600', 'dark:text-slate-400');
+                    }
+                });
+            }
+
+            /**
+             * Render the filtered list of tasks
+             */
+            function renderTodos(animateNewId = null) {
+                updateStats();
+
+                const filteredTodos = todos.filter(todo => {
+                    if (currentFilter === 'active') return !todo.completed;
+                    if (currentFilter === 'completed') return todo.completed;
+                    return true;
+                });
+
+                todoList.innerHTML = '';
+
+                if (filteredTodos.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    emptyState.classList.add('flex');
+
+                    if (currentFilter === 'active' && todos.length > 0) {
+                        emptyTitle.textContent = 'All caught up!';
+                        emptySubtitle.textContent = 'You have no active tasks remaining.';
+                    } else if (currentFilter === 'completed') {
+                        emptyTitle.textContent = 'No completed tasks';
+                        emptySubtitle.textContent = 'Tasks you check off will appear here.';
+                    } else {
+                        emptyTitle.textContent = 'No tasks yet';
+                        emptySubtitle.textContent = 'Add a task above to get started and organize your day.';
+                    }
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+
+                filteredTodos.forEach(todo => {
+                    const li = document.createElement('li');
+                    const isEditing = editingId === todo.id;
+                    
+                    li.className = `group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-2xs hover:shadow-sm transition-all duration-200 ${
+                        todo.completed ? 'bg-slate-50/70 dark:bg-slate-900/50' : ''
+                    } ${animateNewId === todo.id ? 'animate-slide-in' : ''}`;
+                    li.dataset.id = todo.id;
+
+                    if (isEditing) {
+                        // Inline Edit View
+                        li.innerHTML = `
+                            <form class="edit-form space-y-3">
+                                <input 
+                                    type="text" 
+                                    class="edit-input w-full bg-slate-50 dark:bg-slate-800 border border-brand-500 rounded-xl px-3 py-2 text-sm sm:text-base text-slate-900 dark:text-white focus:outline-none" 
+                                    value="${escapeHTML(todo.text)}"
+                                    required
+                                >
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <select class="edit-priority bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-none">
+                                            <option value="low" ${todo.priority === 'low' ? 'selected' : ''}>Low Priority</option>
+                                            <option value="medium" ${todo.priority === 'medium' ? 'selected' : ''}>Medium Priority</option>
+                                            <option value="high" ${todo.priority === 'high' ? 'selected' : ''}>High Priority</option>
+                                        </select>
+                                        <input 
+                                            type="date" 
+                                            class="edit-date bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-lg px-2.5 py-1 focus:outline-none"
+                                            value="${todo.dueDate || ''}"
+                                        >
+                                    </div>
+                                    <div class="flex items-center gap-1.5 ml-auto">
+                                        <button type="button" class="cancel-edit-btn px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="px-3 py-1.5 text-xs font-medium bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors cursor-pointer">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        `;
+                    } else {
+                        // Standard View
+                        const priorityInfo = getPriorityBadge(todo.priority);
+                        const dateInfo = formatDueDate(todo.dueDate, todo.completed);
+
+                        let dateBadgeHTML = '';
+                        if (dateInfo) {
+                            const dateColorClass = dateInfo.isOverdue
+                                ? 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40'
+                                : dateInfo.isToday
+                                ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/40'
+                                : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800';
+
+                            dateBadgeHTML = `
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md ${dateColorClass}">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                                    ${dateInfo.label}
+                                </span>
+                            `;
+                        }
+
+                        li.innerHTML = `
+                            <div class="flex items-start gap-3.5">
+                                <div class="pt-0.5">
+                                    <input 
+                                        type="checkbox" 
+                                        class="toggle-checkbox custom-checkbox" 
+                                        ${todo.completed ? 'checked' : ''}
+                                        aria-label="Mark task as ${todo.completed ? 'incomplete' : 'complete'}"
+                                    >
+                                </div>
+                                
+                                <div class="flex-1 min-w-0 cursor-pointer task-content">
+                                    <p class="text-sm sm:text-base font-medium break-words transition-all duration-200 ${
+                                        todo.completed 
+                                            ? 'line-through text-slate-400 dark:text-slate-500' 
+                                            : 'text-slate-800 dark:text-slate-100'
+                                    }">
+                                        ${escapeHTML(todo.text)}
+                                    </p>
+                                    
+                                    <div class="flex flex-wrap items-center gap-2 mt-2">
+                                        <span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${priorityInfo.classes}">
+                                            ${priorityInfo.label}
+                                        </span>
+                                        ${dateBadgeHTML}
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                                    <button 
+                                        type="button" 
+                                        class="edit-btn p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                                        title="Edit task"
+                                        aria-label="Edit task"
+                                    >
+                                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        class="delete-btn p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
+                                        title="Delete task"
+                                        aria-label="Delete task"
+                                    >
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    todoList.appendChild(li);
+                });
+
+                // Re-initialize Lucide icons for newly rendered items
+                lucide.createIcons();
+
+                // Focus edit input if currently editing
+                if (editingId) {
+                    const activeEditInput = todoList.querySelector('.edit-input');
+                    if (activeEditInput) {
+                        activeEditInput.focus();
+                        activeEditInput.setSelectionRange(activeEditInput.value.length, activeEditInput.value.length);
+                    }
+                }
+            }
+
+            /**
+             * Prevent XSS when rendering user strings
+             */
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            /**
+             * Add a new task
+             */
+            todoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = todoInput.value.trim();
+                
+                if (!text) {
+                    todoInput.focus();
+                    showToast('Please enter a task description.');
+                    return;
+                }
+
+                const newTodo = {
+                    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+                    text,
+                    completed: false,
+                    priority: todoPriority.value,
+                    dueDate: todoDate.value,
+                    createdAt: Date.now()
+                };
+
+                todos.unshift(newTodo);
+                saveTodos();
+
+                // Reset form
+                todoInput.value = '';
+                todoDate.value = '';
+                todoPriority.value = 'medium';
+
+                // Switch to 'all' or 'active' if currently viewing 'completed'
+                if (currentFilter === 'completed') {
+                    currentFilter = 'all';
+                }
+
+                renderTodos(newTodo.id);
+            });
+
+            /**
+             * Event Delegation for List Interactions (Toggle, Edit, Delete, Save Edit)
+             */
+            todoList.addEventListener('click', (e) => {
+                const li = e.target.closest('li');
+                if (!li) return;
+                const id = li.dataset.id;
+
+                // Toggle completion
+                if (e.target.classList.contains('toggle-checkbox')) {
+                    const todo = todos.find(t => t.id === id);
+                    if (todo) {
+                        todo.completed = !todo.completed;
+                        saveTodos();
+                        renderTodos();
+                    }
+                    return;
+                }
+
+                // Delete task with smooth fade-out
+                if (e.target.closest('.delete-btn')) {
+                    li.classList.add('animate-fade-out');
+                    setTimeout(() => {
+                        todos = todos.filter(t => t.id !== id);
+                        if (editingId === id) editingId = null;
+                        saveTodos();
+                        renderTodos();
+                        showToast('Task deleted');
+                    }, 180);
+                    return;
+                }
+
+                // Enter Edit Mode
+                if (e.target.closest('.edit-btn')) {
+                    editingId = id;
+                    renderTodos();
+                    return;
+                }
+
+                // Cancel Edit Mode
+                if (e.target.closest('.cancel-edit-btn')) {
+                    editingId = null;
+                    renderTodos();
+                    return;
+                }
+            });
+
+            // Double click text to edit
+            todoList.addEventListener('dblclick', (e) => {
+                const contentEl = e.target.closest('.task-content');
+                if (!contentEl) return;
+                const li = contentEl.closest('li');
+                if (li) {
+                    editingId = li.dataset.id;
+                    renderTodos();
+                }
+            });
+
+            // Handle Inline Edit Form Submission
+            todoList.addEventListener('submit', (e) => {
+                if (!e.target.classList.contains('edit-form')) return;
+                e.preventDefault();
+
+                const li = e.target.closest('li');
+                const id = li.dataset.id;
+                const newText = li.querySelector('.edit-input').value.trim();
+                const newPriority = li.querySelector('.edit-priority').value;
+                const newDate = li.querySelector('.edit-date').value;
+
+                if (!newText) {
+                    showToast('Task description cannot be empty.');
+                    return;
+                }
+
+                const todo = todos.find(t => t.id === id);
+                if (todo) {
+                    todo.text = newText;
+                    todo.priority = newPriority;
+                    todo.dueDate = newDate;
+                    saveTodos();
+                    showToast('Task updated');
+                }
+
+                editingId = null;
+                renderTodos();
+            });
+
+            // Allow Escape key to cancel inline editing
+            todoList.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && editingId) {
+                    editingId = null;
+                    renderTodos();
+                }
+            });
+
+            /**
+             * Filter Tab Switching
+             */
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilter = btn.dataset.filter;
+                    editingId = null;
+                    renderTodos();
+                });
+            });
+
+            /**
+             * Clear All Completed Tasks
+             */
+            clearCompletedBtn.addEventListener('click', () => {
+                const completedCount = todos.filter(t => t.completed).length;
+                if (completedCount === 0) return;
+
+                todos = todos.filter(t => !t.completed);
+                saveTodos();
+                renderTodos();
+                showToast(`Cleared ${completedCount} completed ${completedCount === 1 ? 'task' : 'tasks'}`);
+            });
+
+            // Boot Application
+            renderHeaderDate();
+            loadTodos();
+            renderTodos();
+        });
+    </script>
+</body>
+</html>
