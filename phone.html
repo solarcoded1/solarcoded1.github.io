@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Daily Sheet — Phone View</title>
+    <title>Daily Sheet — Phone Landscape View</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts -->
@@ -53,7 +53,7 @@
             place-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .eink-checkbox:checked {
@@ -79,61 +79,67 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-4 selection:bg-ink selection:text-paper">
+<body class="min-h-screen p-3 sm:p-5 selection:bg-ink selection:text-paper flex items-center">
 
-    <main class="max-w-md mx-auto space-y-5">
+    <!-- 1/3 and 2/3 Landscape Grid (Forces 3 columns on landscape phones & tablets) -->
+    <main class="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 items-start">
 
-        <!-- TIME & DATE BOX (No labels, clean clock) -->
-        <section class="border-[1.5px] border-ink bg-paper p-4 text-center">
-            <div id="live-clock" class="font-mono text-3xl font-semibold tracking-tight text-ink tabular-nums">
-                00:00:00
-            </div>
-            <p id="live-date" class="font-serif text-base text-ink mt-1 pt-1 border-t border-dashed border-[#888888]">
-                Loading date...
-            </p>
-        </section>
+        <!-- LEFT COLUMN (1/3): Clock & Weather -->
+        <aside class="sm:col-span-1 space-y-4">
 
-        <!-- WEATHER BOX (Stevenage moved to left, expanded metrics) -->
-        <section class="border-[1.5px] border-ink bg-paper p-4">
-            <div class="flex items-center justify-between border-b border-ink pb-2 mb-3">
-                <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink font-semibold">Stevenage, UK</span>
-                <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-charcoal">Live</span>
-            </div>
-
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <span id="weather-temp" class="font-mono text-3xl font-semibold text-ink tabular-nums">--°C</span>
-                    <p id="weather-condition" class="font-serif text-base text-ink mt-0.5">
-                        Fetching reading...
-                    </p>
+            <!-- TIME & DATE BOX -->
+            <section class="border-[1.5px] border-ink bg-paper p-3.5 sm:p-4 text-center">
+                <div id="live-clock" class="font-mono text-2xl lg:text-3xl font-semibold tracking-tight text-ink tabular-nums">
+                    00:00:00
                 </div>
-                <div id="weather-icon" class="text-ink" aria-hidden="true">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
-                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
-                    </svg>
-                </div>
-            </div>
+                <p id="live-date" class="font-serif text-sm sm:text-base text-ink mt-1 pt-1 border-t border-dashed border-[#888888]">
+                    Loading date...
+                </p>
+            </section>
 
-            <div class="mt-3 pt-2.5 border-t border-dashed border-[#888888] grid grid-cols-3 gap-2 font-mono text-[10px] text-charcoal text-center">
-                <div>
-                    <span class="block text-[9px]">WIND</span>
-                    <span id="weather-wind" class="text-ink font-medium tabular-nums">-- km/h</span>
+            <!-- WEATHER BOX -->
+            <section class="border-[1.5px] border-ink bg-paper p-3.5 sm:p-4">
+                <div class="flex items-center justify-between border-b border-ink pb-1.5 mb-2.5">
+                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink font-semibold">Stevenage, UK</span>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal">Live</span>
                 </div>
-                <div class="border-x border-dashed border-[#888888]">
-                    <span class="block text-[9px]">PRECIP</span>
-                    <span id="weather-precip" class="text-ink font-medium tabular-nums">-- mm</span>
-                </div>
-                <div>
-                    <span class="block text-[9px]">HUMIDITY</span>
-                    <span id="weather-humidity" class="text-ink font-medium tabular-nums">--%</span>
-                </div>
-            </div>
-        </section>
 
-        <!-- TO-DO LIST (No input/add button, smaller text, auto-delete, sub-tasks) -->
-        <section class="border-[1.5px] border-ink bg-paper p-5">
-            <header class="border-b-[1.5px] border-ink pb-2.5 mb-4 flex items-baseline justify-between">
-                <h1 class="font-serif text-2xl font-medium tracking-tight text-ink">
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <span id="weather-temp" class="font-mono text-2xl lg:text-3xl font-semibold text-ink tabular-nums">--°C</span>
+                        <p id="weather-condition" class="font-serif text-sm sm:text-base text-ink mt-0.5">
+                            Fetching...
+                        </p>
+                    </div>
+                    <div id="weather-icon" class="text-ink shrink-0" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="mt-2.5 pt-2 border-t border-dashed border-[#888888] grid grid-cols-3 gap-1 font-mono text-[10px] text-charcoal text-center">
+                    <div>
+                        <span class="block text-[8px] uppercase">Wind</span>
+                        <span id="weather-wind" class="text-ink font-medium tabular-nums">-- km/h</span>
+                    </div>
+                    <div class="border-x border-dashed border-[#888888]">
+                        <span class="block text-[8px] uppercase">Precip</span>
+                        <span id="weather-precip" class="text-ink font-medium tabular-nums">-- mm</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] uppercase">Humid</span>
+                        <span id="weather-humidity" class="text-ink font-medium tabular-nums">--%</span>
+                    </div>
+                </div>
+            </section>
+
+        </aside>
+
+        <!-- RIGHT COLUMN (2/3): To-Do Display -->
+        <section class="sm:col-span-2 border-[1.5px] border-ink bg-paper p-4 sm:p-6">
+            <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
+                <h1 class="font-serif text-xl sm:text-2xl font-medium tracking-tight text-ink">
                     To-Do Display
                 </h1>
                 <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">
@@ -141,7 +147,7 @@
                 </span>
             </header>
 
-            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink">
+            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink max-h-[65vh] overflow-y-auto pr-1">
                 <!-- Tasks rendered dynamically -->
             </ul>
 
@@ -175,10 +181,10 @@
             const iconEl = document.getElementById('weather-icon');
 
             const WEATHER_ICONS = {
-                clear: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-                partlyCloudy: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>`,
-                overcast: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
-                rain: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v2M12 17v4M16 19v2"/></svg>`
+                clear: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
+                partlyCloudy: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>`,
+                overcast: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
+                rain: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v2M12 17v4M16 19v2"/></svg>`
             };
 
             async function fetchWeather() {
@@ -245,12 +251,12 @@
 
                 todos.forEach(todo => {
                     const li = document.createElement('li');
-                    li.className = 'py-3';
+                    li.className = 'py-2.5';
                     li.dataset.id = todo.id;
 
                     let subtasksHTML = '';
                     if (todo.subtasks && todo.subtasks.length > 0) {
-                        subtasksHTML = '<ul class="ml-7 mt-2 space-y-1.5 border-l border-dashed border-[#888888] pl-3">';
+                        subtasksHTML = '<ul class="ml-7 mt-1.5 space-y-1.5 border-l border-dashed border-[#888888] pl-3">';
                         todo.subtasks.forEach(sub => {
                             subtasksHTML += `
                                 <li class="flex items-center justify-between gap-2" data-sub-id="${sub.id}">
@@ -285,12 +291,11 @@
                 const todoId = li.dataset.id;
 
                 if (e.target.classList.contains('toggle-todo')) {
-                    // Auto-delete on completion
                     setTimeout(() => {
                         todos = todos.filter(t => t.id !== todoId);
                         saveTodos();
                         renderTodos();
-                    }, 300); // slight delay to register the check animation
+                    }, 300);
                 } else if (e.target.classList.contains('toggle-subtask')) {
                     const subLi = e.target.closest('li[data-sub-id]');
                     const subId = subLi.dataset.subId;
@@ -308,7 +313,6 @@
             loadTodos();
             renderTodos();
             
-            // Poll storage every second to keep synced if updated via shared local storage/tabs
             window.addEventListener('storage', () => {
                 loadTodos();
                 renderTodos();
