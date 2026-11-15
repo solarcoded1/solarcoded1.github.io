@@ -12,6 +12,32 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
 
     <script>
+
+                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        
+        const firebaseConfig = {
+            databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const todosRef = ref(db, 'todos');
+        
+        // Whenever you modify todos on PC, save to Firebase:
+        function saveTodos() {
+            set(todosRef, todos);
+        }
+        
+        // Listen for live updates from database:
+        onValue(todosRef, (snapshot) => {
+            const data = snapshot.val();
+            todos = data ? data : [];
+            renderTodos();
+        });
+
+
+        
         tailwind.config = {
             theme: {
                 extend: {
@@ -28,6 +54,8 @@
                 }
             }
         }
+
+        
     </script>
 
     <style>
