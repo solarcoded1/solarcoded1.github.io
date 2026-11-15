@@ -1,328 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>Daily Sheet — PC Control Panel</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['Newsreader', 'Georgia', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        paper: '#F4F3EF',
-                        paperDark: '#EAE8E1',
-                        ink: '#111111',
-                        charcoal: '#555555',
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #F4F3EF;
-            color: #111111;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .eink-input {
-            background: transparent;
-            border: 1.5px solid #111111;
-            padding: 8px 12px;
-            font-family: 'Newsreader', serif;
-            font-size: 1rem;
-            color: #111111;
-            outline: none;
-        }
-
-        .eink-input:focus {
-            background-color: #EAE8E1;
-        }
-
-        .eink-btn {
-            border: 1.5px solid #111111;
-            background: transparent;
-            color: #111111;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            padding: 9px 16px;
-            cursor: pointer;
-        }
-
-        .eink-btn:hover {
-            background: #111111;
-            color: #F4F3EF;
-        }
-
-        .tabular-nums {
-            font-variant-numeric: tabular-nums;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Daily Sheet — PC Control Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{fontFamily:{serif:['Newsreader','Georgia','serif'],mono:['JetBrains Mono','monospace']},colors:{paper:'#F4F3EF',paperDark:'#EAE8E1',ink:'#111111',charcoal:'#555555'}}}}
+</script>
+<style>
+body{background-color:#F4F3EF;color:#111;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");-webkit-font-smoothing:antialiased}
+.eink-input{background:transparent;border:1.5px solid #111;padding:8px 12px;font-family:'Newsreader',serif;font-size:1rem;color:#111;outline:none;width:100%}
+.eink-input:focus{background-color:#EAE8E1}
+.eink-btn{border:1.5px solid #111;background:transparent;color:#111;font-family:'JetBrains Mono',monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.14em;padding:9px 16px;cursor:pointer}
+.eink-btn:hover:not(:disabled){background:#111;color:#F4F3EF}
+.sm-btn{border:1.5px solid #111;background:transparent;color:#111;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:4px 8px;cursor:pointer;line-height:1.2}
+.sm-btn:hover:not(:disabled){background:#111;color:#F4F3EF}
+.sm-btn:disabled{opacity:.25;cursor:default}
+.tabular-nums{font-variant-numeric:tabular-nums}
+</style>
 </head>
-<body class="min-h-screen p-4 sm:p-6 selection:bg-ink selection:text-paper flex flex-col justify-between">
+<body class="min-h-screen p-4 sm:p-6 selection:bg-ink selection:text-paper">
 
-    <!-- TOP HEADER / COMMAND CENTER -->
-    <header class="w-full max-w-6xl mx-auto border-[1.5px] border-ink bg-paper p-4 mb-4 flex items-center justify-between">
+<header class="w-full max-w-6xl mx-auto border-[1.5px] border-ink bg-paper p-4 mb-4 flex items-center justify-between">
+  <div>
+    <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-charcoal block">E-Paper Workspace</span>
+    <h1 class="font-serif text-2xl font-medium tracking-tight">PC Control Panel</h1>
+  </div>
+  <button id="open-pomodoro" class="eink-btn tabular-nums">Start Focus Timer</button>
+</header>
+
+<main class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+  <aside class="md:col-span-1 md:sticky md:top-4">
+    <section class="border-[1.5px] border-ink bg-paper p-4">
+      <h2 class="font-serif text-lg font-medium mb-3 border-b border-ink pb-2">Add New Task</h2>
+      <form id="add-task-form" class="space-y-3">
         <div>
-            <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-charcoal block">E-Paper Workspace</span>
-            <h1 class="font-serif text-2xl font-medium tracking-tight text-ink">PC Control Panel</h1>
+          <label for="task-input" class="block font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal mb-1">Task</label>
+          <input id="task-input" class="eink-input" placeholder="What needs doing?" required autocomplete="off">
         </div>
-        <button id="open-pomodoro" class="eink-btn">
-            Start Focus Timer
-        </button>
+        <button type="submit" class="eink-btn w-full">Add Task</button>
+      </form>
+      <p class="font-serif italic text-sm text-charcoal mt-3 pt-3 border-t border-dashed border-[#888888]">Add sub-tasks any time from the task's own card. Use the arrows to set the order the phone shows.</p>
+    </section>
+  </aside>
+
+  <section class="md:col-span-2 border-[1.5px] border-ink bg-paper p-4">
+    <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
+      <h2 class="font-serif text-xl font-medium">Manage Active Tasks</h2>
+      <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">0 items</span>
     </header>
+    <ul id="pc-todo-list" class="space-y-3"></ul>
+    <p id="empty-state" class="hidden py-8 text-center font-serif italic text-sm text-charcoal border-t border-b border-ink">No active tasks yet. Add one on the left.</p>
+  </section>
+</main>
 
-    <!-- MAIN LANDSCAPE SPLIT GRID (Left Column: Add Form & Timer Control, Right Column: Active Tasks) -->
-    <main class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-start flex-1">
-
-        <!-- LEFT COLUMN (1/3): Add Task Form & Quick Widget Stats -->
-        <aside class="md:col-span-1 space-y-4">
-            <!-- ADD TASK SECTION -->
-            <section class="border-[1.5px] border-ink bg-paper p-4">
-                <h2 class="font-serif text-lg font-medium mb-3 text-ink border-b border-ink pb-2">Add New Task</h2>
-                <form id="add-task-form" class="space-y-3">
-                    <div>
-                        <label for="task-input" class="block font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal mb-1">Main Task</label>
-                        <input type="text" id="task-input" placeholder="Enter main task..." required class="w-full eink-input" autocomplete="off">
-                    </div>
-                    <div>
-                        <label for="subtask-input" class="block font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal mb-1">Sub-tasks (comma separated)</label>
-                        <input type="text" id="subtask-input" placeholder="e.g. Email office, Review notes" class="w-full eink-input" autocomplete="off">
-                    </div>
-                    <button type="submit" class="eink-btn w-full mt-1">Add to Daily Sheet</button>
-                </form>
-            </section>
-        </aside>
-
-        <!-- RIGHT COLUMN (2/3): Task Management List -->
-        <section class="md:col-span-2 border-[1.5px] border-ink bg-paper p-4">
-            <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
-                <h2 class="font-serif text-xl font-medium text-ink">Manage Active Tasks</h2>
-                <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">0 items</span>
-            </header>
-
-            <ul id="pc-todo-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-                <!-- Populated dynamically -->
-            </ul>
-
-            <p id="empty-state" class="hidden py-8 text-center font-serif italic text-sm text-charcoal border-t border-b border-ink">
-                No active tasks recorded. Use the form on the left to add items.
-            </p>
-        </section>
-
-    </main>
-
-    <!-- FULLSCREEN POMODORO BLOCKER MODAL -->
-    <div id="pomodoro-modal" class="fixed inset-0 bg-[#F4F3EF] z-50 p-6 flex flex-col hidden">
-        <div class="flex justify-between items-center border-b-[1.5px] border-ink pb-3 mb-6">
-            <span class="font-mono text-xs uppercase tracking-widest text-ink font-semibold">PC Focus Mode</span>
-            <button id="close-pomodoro" class="eink-btn">Exit Blocker</button>
-        </div>
-
-        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center max-w-4xl mx-auto w-full">
-            <!-- Left Side: Timer -->
-            <div class="border-[1.5px] border-ink p-8 text-center bg-paperDark/20">
-                <span class="font-mono text-xs uppercase tracking-widest text-charcoal block mb-2">Pomodoro Session</span>
-                <div id="pomo-timer" class="font-mono text-6xl sm:text-7xl font-semibold tracking-tighter text-ink tabular-nums my-4">
-                    25:00
-                </div>
-                <div class="flex justify-center gap-3 mt-4">
-                    <button id="pomo-toggle" class="eink-btn px-5">Start</button>
-                    <button id="pomo-reset" class="eink-btn px-5">Reset</button>
-                </div>
-            </div>
-
-            <!-- Right Side: Todos Inside Blocker -->
-            <div class="border-[1.5px] border-ink p-6 bg-paper h-full max-h-[60vh] flex flex-col">
-                <h3 class="font-serif text-lg font-medium border-b border-ink pb-2 mb-3">Active Focus Tasks</h3>
-                <ul id="pomo-todo-list" class="divide-y divide-dashed divide-[#888888] overflow-y-auto flex-1 pr-1">
-                    <!-- Synced tasks -->
-                </ul>
-            </div>
-        </div>
+<div id="pomodoro-modal" class="fixed inset-0 bg-[#F4F3EF] z-50 p-6 flex flex-col hidden overflow-y-auto">
+  <div class="flex justify-between items-center border-b-[1.5px] border-ink pb-3 mb-6">
+    <span class="font-mono text-xs uppercase tracking-widest font-semibold">PC Focus Mode</span>
+    <button id="close-pomodoro" class="eink-btn">Close Panel</button>
+  </div>
+  <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center max-w-4xl mx-auto w-full">
+    <div class="border-[1.5px] border-ink p-8 text-center bg-paperDark/20">
+      <span class="font-mono text-xs uppercase tracking-widest text-charcoal block mb-2">Pomodoro Session</span>
+      <div id="pomo-timer" class="font-mono text-6xl sm:text-7xl font-semibold tracking-tighter tabular-nums my-4">25:00</div>
+      <p id="pomo-status" class="font-serif italic text-sm text-charcoal">Idle</p>
+      <div class="flex justify-center flex-wrap gap-3 mt-4">
+        <button id="pomo-toggle" class="eink-btn px-5">Start</button>
+        <button id="pomo-reset" class="eink-btn px-5">Reset</button>
+        <button id="pomo-end" class="eink-btn px-5">End</button>
+      </div>
+      <p class="font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal mt-4 pt-3 border-t border-dashed border-[#888888]">Mirrors to the phone display</p>
     </div>
+    <div class="border-[1.5px] border-ink p-6 bg-paper h-full max-h-[60vh] flex flex-col">
+      <h3 class="font-serif text-lg font-medium border-b border-ink pb-2 mb-3">Active Focus Tasks</h3>
+      <ul id="pomo-todo-list" class="divide-y divide-dashed divide-[#888888] overflow-y-auto flex-1 pr-1"></ul>
+    </div>
+  </div>
+</div>
 
-    <!-- SCRIPTS -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const db = getDatabase(initializeApp({ databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/" }));
+const todosRef = ref(db, 'todos'), timerRef = ref(db, 'timer');
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-        const firebaseConfig = {
-            databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
-        };
+/* ---------- Tasks ---------- */
+let todos = [], editing = null, editValue = '';
+const list = $('pc-todo-list');
+const save = () => set(todosRef, todos);
+const norm = v => (Array.isArray(v) ? v : Object.values(v || {})).map(t => ({
+  text: t.text, completed: !!t.completed,
+  subtasks: (Array.isArray(t.subtasks) ? t.subtasks : Object.values(t.subtasks || {}))
+}));
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const todosRef = ref(db, 'todos');
+onValue(todosRef, s => {
+  todos = norm(s.val());
+  const a = document.activeElement;
+  if (a && list.contains(a) && a.tagName === 'INPUT') return; // don't wipe what you're typing
+  render();
+});
 
-        let todos = [];
+const arrows = (i, n, d) => `<button class="sm-btn" data-a="up" data-i="${i}" ${d ? `data-j="${d.j}"` : ''} ${(d ? d.j : i) === 0 ? 'disabled' : ''}>&uarr;</button><button class="sm-btn" data-a="down" data-i="${i}" ${d ? `data-j="${d.j}"` : ''} ${(d ? d.j : i) === n - 1 ? 'disabled' : ''}>&darr;</button>`;
+const editRow = () => `<div class="flex gap-2 w-full"><input id="edit-input" class="eink-input" value="${esc(editValue)}"><button class="sm-btn" data-a="save">Save</button><button class="sm-btn" data-a="cancel">Cancel</button></div>`;
 
-        const taskForm = document.getElementById('add-task-form');
-        const taskInput = document.getElementById('task-input');
-        const subtaskInput = document.getElementById('subtask-input');
-        const pcTodoList = document.getElementById('pc-todo-list');
-        const pomoTodoList = document.getElementById('pomo-todo-list');
-        const emptyState = document.getElementById('empty-state');
-        const taskCountEl = document.getElementById('task-count');
+function render() {
+  $('task-count').textContent = `${todos.length} items`;
+  $('empty-state').classList.toggle('hidden', todos.length > 0);
+  list.classList.toggle('hidden', todos.length === 0);
 
-        // Listen for live database updates
-        onValue(todosRef, (snapshot) => {
-            const data = snapshot.val();
-            todos = data ? data : [];
-            renderPCList();
-        });
+  list.innerHTML = todos.map((t, i) => {
+    const mainEdit = editing && editing.i === i && editing.j === undefined;
+    const subs = t.subtasks.map((s, j) => {
+      const e = editing && editing.i === i && editing.j === j;
+      return `<li class="flex items-center gap-2 py-2">
+        <span class="font-mono text-[11px] text-charcoal tabular-nums w-8 shrink-0">${i + 1}.${j + 1}</span>
+        ${e ? editRow() : `<span class="font-serif text-base flex-1 min-w-0 break-words">${esc(s.text)}</span>
+        <div class="flex gap-1.5 shrink-0">${arrows(i, t.subtasks.length, { j })}<button class="sm-btn" data-a="edit" data-i="${i}" data-j="${j}">Edit</button><button class="sm-btn" data-a="del" data-i="${i}" data-j="${j}">Del</button></div>`}
+      </li>`;
+    }).join('');
+    return `<li class="border-[1.5px] border-ink bg-paperDark/20">
+      <div class="flex items-center gap-3 p-3.5">
+        <span class="font-mono text-xs text-charcoal tabular-nums">${String(i + 1).padStart(2, '0')}</span>
+        ${mainEdit ? editRow() : `<span class="font-serif text-lg font-medium flex-1 min-w-0 break-words">${esc(t.text)}</span>
+        <div class="flex gap-1.5 shrink-0">${arrows(i, todos.length)}<button class="sm-btn" data-a="edit" data-i="${i}">Edit</button><button class="sm-btn" data-a="del" data-i="${i}">Del</button></div>`}
+      </div>
+      <div class="border-t border-dashed border-[#888888] px-3.5 pb-3.5 pt-1">
+        ${subs ? `<ul class="divide-y divide-dashed divide-[#888888]">${subs}</ul>` : ''}
+        <div class="flex gap-2 ${subs ? 'mt-2 pt-2 border-t border-dashed border-[#888888]' : 'mt-2'}">
+          <input class="eink-input" data-sub="${i}" placeholder="Add sub-task..." autocomplete="off">
+          <button class="sm-btn" data-a="addsub" data-i="${i}">+ Sub</button>
+        </div>
+      </div>
+    </li>`;
+  }).join('');
 
-        function renderPCList() {
-            taskCountEl.textContent = `${todos.length} items`;
+  $('pomo-todo-list').innerHTML = todos.map(t => `<li class="py-2"><span class="font-serif text-sm font-medium">${esc(t.text)}</span>${t.subtasks.length ? `<ul class="ml-5 mt-1 space-y-1 border-l border-dashed border-[#888888] pl-2">${t.subtasks.map(s => `<li class="font-serif text-xs text-charcoal">&bull; ${esc(s.text)}</li>`).join('')}</ul>` : ''}</li>`).join('');
 
-            if (todos.length === 0) {
-                pcTodoList.classList.add('hidden');
-                pomoTodoList.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
+  const ei = $('edit-input');
+  if (ei && !ei.dataset.done) { ei.focus(); ei.setSelectionRange(ei.value.length, ei.value.length); }
+}
 
-            pcTodoList.classList.remove('hidden');
-            emptyState.classList.add('hidden');
+const swap = (arr, a, b) => { [arr[a], arr[b]] = [arr[b], arr[a]]; };
+function addSub(i) {
+  const inp = list.querySelector(`[data-sub="${i}"]`), v = inp.value.trim();
+  if (!v) return;
+  todos[i].subtasks.push({ text: v, completed: false });
+  inp.value = ''; save(); inp.focus();
+}
+function commitEdit() {
+  const v = editValue.trim();
+  if (v && editing) { editing.j === undefined ? todos[editing.i].text = v : todos[editing.i].subtasks[editing.j].text = v; save(); }
+  editing = null; render();
+}
 
-            const pcHTML = todos.map((todo, index) => {
-                let subtasksHTML = '';
-                if (todo.subtasks && todo.subtasks.length > 0) {
-                    subtasksHTML = '<ul class="ml-4 space-y-1 border-l border-dashed border-[#888888] pl-3 mt-1.5">';
-                    todo.subtasks.forEach(sub => {
-                        subtasksHTML += `<li class="font-serif text-sm text-charcoal">• ${sub.text}</li>`;
-                    });
-                    subtasksHTML += '</ul>';
-                }
+list.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const i = +b.dataset.i, j = b.dataset.j === undefined ? undefined : +b.dataset.j, a = b.dataset.a;
+  const arr = j === undefined ? todos : todos[i]?.subtasks;
+  if (a === 'up') { swap(arr, j ?? i, (j ?? i) - 1); save(); render(); }
+  else if (a === 'down') { swap(arr, j ?? i, (j ?? i) + 1); save(); render(); }
+  else if (a === 'edit') { editing = { i, j }; editValue = j === undefined ? todos[i].text : todos[i].subtasks[j].text; render(); }
+  else if (a === 'save') commitEdit();
+  else if (a === 'cancel') { editing = null; render(); }
+  else if (a === 'addsub') addSub(i);
+  else if (a === 'del') {
+    if (j === undefined) { if (todos[i].subtasks.length && !confirm(`Delete this task and its ${todos[i].subtasks.length} sub-tasks?`)) return; todos.splice(i, 1); }
+    else todos[i].subtasks.splice(j, 1);
+    save(); render();
+  }
+});
+list.addEventListener('input', e => { if (e.target.id === 'edit-input') editValue = e.target.value; });
+list.addEventListener('keydown', e => {
+  if (e.target.id === 'edit-input') { if (e.key === 'Enter') commitEdit(); if (e.key === 'Escape') { editing = null; render(); } }
+  else if (e.target.dataset.sub !== undefined && e.key === 'Enter') addSub(+e.target.dataset.sub);
+});
+$('add-task-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const inp = $('task-input'), v = inp.value.trim(); if (!v) return;
+  todos.push({ text: v, completed: false, subtasks: [] }); save(); inp.value = ''; render(); inp.focus();
+});
 
-                return `
-                    <li class="border-[1.5px] border-ink p-3.5 bg-paperDark/20 flex flex-col gap-2" data-index="${index}">
-                        <div class="flex items-center justify-between">
-                            <span class="font-serif text-base font-medium text-ink">${todo.text}</span>
-                            <button data-index="${index}" class="delete-btn font-mono text-[10px] uppercase tracking-wider border border-ink px-2.5 py-1 hover:bg-ink hover:text-paper">Delete</button>
-                        </div>
-                        ${subtasksHTML}
-                    </li>`;
-            }).join('');
+/* ---------- Focus timer (synced to phone via Firebase) ---------- */
+const DUR = 25 * 60;
+let offset = 0, timer = { status: 'idle' };
+onValue(ref(db, '.info/serverTimeOffset'), s => offset = s.val() || 0);
+onValue(timerRef, s => { timer = s.val() || { status: 'idle' }; tick(); });
+const now = () => Date.now() + offset;
+const left = () => timer.status === 'running' ? Math.max(0, Math.ceil((timer.endsAt - now()) / 1000)) : timer.status === 'paused' ? timer.remaining : DUR;
+const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+const put = o => set(timerRef, o);
 
-            const pomoHTML = todos.map((todo) => {
-                let subtasksHTML = '';
-                if (todo.subtasks && todo.subtasks.length > 0) {
-                    subtasksHTML = '<ul class="ml-5 mt-1 space-y-1 border-l border-dashed border-[#888888] pl-2">';
-                    todo.subtasks.forEach(sub => {
-                        subtasksHTML += `<li class="font-serif text-xs text-charcoal">• ${sub.text}</li>`;
-                    });
-                    subtasksHTML += '</ul>';
-                }
-                return `
-                    <li class="py-2">
-                        <span class="font-serif text-sm font-medium text-ink">${todo.text}</span>
-                        ${subtasksHTML}
-                    </li>`;
-            }).join('');
+function start() {
+  if (timer.status === 'paused') put({ ...timer, status: 'running', endsAt: now() + timer.remaining * 1000 });
+  else put({ status: 'running', duration: DUR, remaining: DUR, endsAt: now() + DUR * 1000, startedAt: now() });
+}
+function tick() {
+  const r = left(), st = timer.status, done = st === 'running' && r === 0;
+  $('pomo-timer').textContent = fmt(r);
+  $('pomo-status').textContent = done ? 'Session complete' : st === 'running' ? 'Running on phone and PC' : st === 'paused' ? 'Paused' : 'Idle';
+  $('pomo-toggle').textContent = done ? 'Start Again' : st === 'running' ? 'Pause' : st === 'paused' ? 'Resume' : 'Start';
+  $('open-pomodoro').textContent = st === 'idle' ? 'Start Focus Timer' : `Focus ${fmt(r)}${st === 'paused' ? ' (paused)' : ''}`;
+}
+setInterval(tick, 250);
 
-            pcTodoList.innerHTML = pcHTML;
-            pomoTodoList.innerHTML = pomoHTML;
-        }
-
-        // Add task event
-        taskForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const text = taskInput.value.trim();
-            if (!text) return;
-
-            const rawSubtasks = subtaskInput.value.trim();
-            let subtasks = [];
-            if (rawSubtasks) {
-                subtasks = rawSubtasks.split(',').map(s => ({
-                    text: s.trim(),
-                    completed: false
-                })).filter(s => s.text.length > 0);
-            }
-
-            todos.push({
-                text: text,
-                completed: false,
-                subtasks: subtasks
-            });
-
-            set(todosRef, todos);
-
-            taskInput.value = '';
-            subtaskInput.value = '';
-        });
-
-        // Delete task event
-        pcTodoList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('delete-btn')) {
-                const index = parseInt(e.target.dataset.index);
-                todos.splice(index, 1);
-                set(todosRef, todos);
-            }
-        });
-
-        // Pomodoro Blocker Logic for PC
-        const modal = document.getElementById('pomodoro-modal');
-        document.getElementById('open-pomodoro').addEventListener('click', () => modal.classList.remove('hidden'));
-        document.getElementById('close-pomodoro').addEventListener('click', () => modal.classList.add('hidden'));
-
-        let pomoTime = 25 * 60;
-        let pomoInterval = null;
-        let isRunning = false;
-        const timerDisplay = document.getElementById('pomo-timer');
-        const toggleBtn = document.getElementById('pomo-toggle');
-
-        function updateTimerDisplay() {
-            const mins = Math.floor(pomoTime / 60);
-            const secs = pomoTime % 60;
-            timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-
-        toggleBtn.addEventListener('click', () => {
-            if (isRunning) {
-                clearInterval(pomoInterval);
-                isRunning = false;
-                toggleBtn.textContent = 'Start';
-            } else {
-                isRunning = true;
-                toggleBtn.textContent = 'Pause';
-                pomoInterval = setInterval(() => {
-                    if (pomoTime > 0) {
-                        pomoTime--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(pomoInterval);
-                        alert('Pomodoro session completed!');
-                        isRunning = false;
-                        toggleBtn.textContent = 'Start';
-                    }
-                }, 1000);
-            }
-        });
-
-        document.getElementById('pomo-reset').addEventListener('click', () => {
-            clearInterval(pomoInterval);
-            isRunning = false;
-            pomoTime = 25 * 60;
-            updateTimerDisplay();
-            toggleBtn.textContent = 'Start';
-        });
-    </script>
+$('open-pomodoro').addEventListener('click', () => {
+  $('pomodoro-modal').classList.remove('hidden');
+  if (timer.status === 'idle' || (timer.status === 'running' && left() === 0)) start();
+});
+$('close-pomodoro').addEventListener('click', () => $('pomodoro-modal').classList.add('hidden'));
+$('pomo-toggle').addEventListener('click', () => {
+  if (timer.status === 'running' && left() > 0) put({ ...timer, status: 'paused', remaining: left() });
+  else { if (timer.status === 'running') timer = { status: 'idle' }; start(); }
+});
+$('pomo-reset').addEventListener('click', () => { if (timer.status !== 'idle') put({ status: 'paused', duration: DUR, remaining: DUR, endsAt: 0, startedAt: timer.startedAt || now() }); });
+$('pomo-end').addEventListener('click', () => put({ status: 'idle' }));
+tick();
+</script>
 </body>
 </html>
