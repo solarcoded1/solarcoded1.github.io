@@ -1,0 +1,8 @@
+{
+  "name": "E-Paper Dashboard",
+  "short_name": "E-Paper",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F4F3EF",
+  "theme_color": "#F4F3EF"
+}
