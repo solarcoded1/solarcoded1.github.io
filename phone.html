@@ -14,8 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
 
     <script>
-
-            tailwind.config = {
+        tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
@@ -31,33 +30,6 @@
                 }
             }
         }
-
-
-
-        
-                    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-            import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-            
-            const firebaseConfig = {
-                databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
-            };
-            
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-            const todosRef = ref(db, 'todos');
-            
-            // Listen for live changes from PC or phone:
-            onValue(todosRef, (snapshot) => {
-                const data = snapshot.val();
-                todos = data ? data : [];
-                renderTodos();
-            });
-            
-            function saveTodos() {
-                set(todosRef, todos);
-            }
-        
-        
     </script>
 
     <style>
@@ -68,7 +40,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Larger, easy-to-tap e-ink checkbox */
         .eink-checkbox {
             appearance: none;
             -webkit-appearance: none;
@@ -109,7 +80,6 @@
 </head>
 <body class="min-h-screen p-3 sm:p-5 selection:bg-ink selection:text-paper flex items-center">
 
-    <!-- 1/3 and 2/3 Landscape Grid (Forces 3 columns on landscape phones & tablets) -->
     <main class="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 items-start">
 
         <!-- LEFT COLUMN (1/3): Clock & Weather -->
@@ -186,7 +156,19 @@
 
     </main>
 
-    <script>
+    <!-- Firebase Real-Time Sync Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const todosRef = ref(db, 'todos');
+
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Live Clock & Date
             const clockEl = document.getElementById('live-clock');
@@ -200,7 +182,7 @@
             updateClockAndDate();
             setInterval(updateClockAndDate, 1000);
 
-            // 2. Weather (Stevenage) with wind, precip, humidity
+            // 2. Weather (Stevenage)
             const tempEl = document.getElementById('weather-temp');
             const conditionEl = document.getElementById('weather-condition');
             const windEl = document.getElementById('weather-wind');
@@ -242,27 +224,12 @@
             fetchWeather();
             setInterval(fetchWeather, 15 * 60 * 1000);
 
-            // 3. To-Do List with localStorage (auto-delete on check & subtasks support)
-            const STORAGE_KEY = 'epaper_todos_v1';
+            // 3. To-Do List with Firebase Real-Time Sync
             const todoList = document.getElementById('todo-list');
             const emptyState = document.getElementById('empty-state');
             const taskCountEl = document.getElementById('task-count');
 
             let todos = [];
-
-            function loadTodos() {
-                try {
-                    const saved = localStorage.getItem(STORAGE_KEY);
-                    todos = saved ? JSON.parse(saved) : [
-                        { id: '1', text: 'Review morning notes', completed: false, subtasks: [{ id: '1-1', text: 'Check emails', completed: false }] },
-                        { id: '2', text: 'Pick up groceries', completed: false, subtasks: [] }
-                    ];
-                } catch (e) { todos = []; }
-            }
-
-            function saveTodos() {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-            }
 
             function renderTodos() {
                 todoList.innerHTML = '';
@@ -312,7 +279,14 @@
                 });
             }
 
-            // Checkbox logic: Auto-delete main task or subtask when completed
+            // Listen for live updates from Firebase database
+            onValue(todosRef, (snapshot) => {
+                const data = snapshot.val();
+                todos = data ? data : [];
+                renderTodos();
+            });
+
+            // Checkbox logic: Auto-delete main task or subtask when completed & sync to Firebase
             todoList.addEventListener('change', (e) => {
                 const li = e.target.closest('li[data-id]');
                 if (!li) return;
@@ -321,8 +295,7 @@
                 if (e.target.classList.contains('toggle-todo')) {
                     setTimeout(() => {
                         todos = todos.filter(t => t.id !== todoId);
-                        saveTodos();
-                        renderTodos();
+                        set(todosRef, todos);
                     }, 300);
                 } else if (e.target.classList.contains('toggle-subtask')) {
                     const subLi = e.target.closest('li[data-sub-id]');
@@ -331,19 +304,10 @@
                     if (todo && todo.subtasks) {
                         setTimeout(() => {
                             todo.subtasks = todo.subtasks.filter(s => s.id !== subId);
-                            saveTodos();
-                            renderTodos();
+                            set(todosRef, todos);
                         }, 300);
                     }
                 }
-            });
-
-            loadTodos();
-            renderTodos();
-            
-            window.addEventListener('storage', () => {
-                loadTodos();
-                renderTodos();
             });
         });
     </script>
