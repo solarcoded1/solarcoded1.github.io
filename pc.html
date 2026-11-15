@@ -42,9 +42,9 @@
         .eink-input {
             background: transparent;
             border: 1.5px solid #111111;
-            padding: 10px 14px;
+            padding: 8px 12px;
             font-family: 'Newsreader', serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #111111;
             outline: none;
         }
@@ -61,7 +61,7 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.14em;
-            padding: 10px 20px;
+            padding: 9px 16px;
             cursor: pointer;
         }
 
@@ -69,59 +69,96 @@
             background: #111111;
             color: #F4F3EF;
         }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
-<body class="min-h-screen p-6 sm:p-10 selection:bg-ink selection:text-paper">
+<body class="min-h-screen p-4 sm:p-6 selection:bg-ink selection:text-paper flex flex-col justify-between">
 
-    <main class="max-w-2xl mx-auto space-y-6">
+    <!-- TOP HEADER / COMMAND CENTER -->
+    <header class="w-full max-w-6xl mx-auto border-[1.5px] border-ink bg-paper p-4 mb-4 flex items-center justify-between">
+        <div>
+            <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-charcoal block">E-Paper Workspace</span>
+            <h1 class="font-serif text-2xl font-medium tracking-tight text-ink">PC Control Panel</h1>
+        </div>
+        <button id="open-pomodoro" class="eink-btn">
+            Start Focus Timer
+        </button>
+    </header>
 
-        <!-- HEADER -->
-        <header class="border-[1.5px] border-ink bg-paper p-6 text-center relative">
-            <div class="absolute left-6 top-6">
-                <a href="phone.html" class="font-mono text-[11px] uppercase tracking-wider border-[1.5px] border-ink px-3 py-1 hover:bg-ink hover:text-paper transition-none">&larr; Phone View</a>
-            </div>
-            <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-charcoal block mb-1">
-                Command Center
-            </span>
-            <h1 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-ink">
-                PC Control Panel
-            </h1>
-        </header>
+    <!-- MAIN LANDSCAPE SPLIT GRID (Left Column: Add Form & Timer Control, Right Column: Active Tasks) -->
+    <main class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-start flex-1">
 
-        <!-- ADD TASK FORM -->
-        <section class="border-[1.5px] border-ink bg-paper p-6">
-            <h2 class="font-serif text-xl font-medium mb-4 text-ink">Add New Task & Sub-tasks</h2>
-            <form id="add-task-form" class="space-y-4">
-                <div>
-                    <label for="task-input" class="block font-mono text-xs uppercase tracking-[0.12em] text-charcoal mb-1">Main Task</label>
-                    <input type="text" id="task-input" placeholder="Enter main task..." required class="w-full eink-input" autocomplete="off">
-                </div>
-                <div>
-                    <label for="subtask-input" class="block font-mono text-xs uppercase tracking-[0.12em] text-charcoal mb-1">Sub-tasks (comma separated, optional)</label>
-                    <input type="text" id="subtask-input" placeholder="e.g. Check email, Call office" class="w-full eink-input" autocomplete="off">
-                </div>
-                <button type="submit" class="eink-btn w-full">Add to Daily Sheet</button>
-            </form>
-        </section>
+        <!-- LEFT COLUMN (1/3): Add Task Form & Quick Widget Stats -->
+        <aside class="md:col-span-1 space-y-4">
+            <!-- ADD TASK SECTION -->
+            <section class="border-[1.5px] border-ink bg-paper p-4">
+                <h2 class="font-serif text-lg font-medium mb-3 text-ink border-b border-ink pb-2">Add New Task</h2>
+                <form id="add-task-form" class="space-y-3">
+                    <div>
+                        <label for="task-input" class="block font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal mb-1">Main Task</label>
+                        <input type="text" id="task-input" placeholder="Enter main task..." required class="w-full eink-input" autocomplete="off">
+                    </div>
+                    <div>
+                        <label for="subtask-input" class="block font-mono text-[10px] uppercase tracking-[0.12em] text-charcoal mb-1">Sub-tasks (comma separated)</label>
+                        <input type="text" id="subtask-input" placeholder="e.g. Email office, Review notes" class="w-full eink-input" autocomplete="off">
+                    </div>
+                    <button type="submit" class="eink-btn w-full mt-1">Add to Daily Sheet</button>
+                </form>
+            </section>
+        </aside>
 
-        <!-- CURRENT TASKS MANAGEMENT -->
-        <section class="border-[1.5px] border-ink bg-paper p-6">
-            <header class="border-b-[1.5px] border-ink pb-3 mb-4 flex items-baseline justify-between">
-                <h2 class="font-serif text-2xl font-medium text-ink">Manage Active Tasks</h2>
+        <!-- RIGHT COLUMN (2/3): Task Management List -->
+        <section class="md:col-span-2 border-[1.5px] border-ink bg-paper p-4">
+            <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
+                <h2 class="font-serif text-xl font-medium text-ink">Manage Active Tasks</h2>
                 <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">0 items</span>
             </header>
 
-            <ul id="pc-todo-list" class="space-y-4">
+            <ul id="pc-todo-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                 <!-- Populated dynamically -->
             </ul>
 
-            <p id="empty-state" class="hidden py-8 text-center font-serif italic text-base text-charcoal border-t border-b border-ink">
-                No active tasks recorded. Use the form above to add some.
+            <p id="empty-state" class="hidden py-8 text-center font-serif italic text-sm text-charcoal border-t border-b border-ink">
+                No active tasks recorded. Use the form on the left to add items.
             </p>
         </section>
 
     </main>
 
+    <!-- FULLSCREEN POMODORO BLOCKER MODAL -->
+    <div id="pomodoro-modal" class="fixed inset-0 bg-[#F4F3EF] z-50 p-6 flex flex-col hidden">
+        <div class="flex justify-between items-center border-b-[1.5px] border-ink pb-3 mb-6">
+            <span class="font-mono text-xs uppercase tracking-widest text-ink font-semibold">PC Focus Mode</span>
+            <button id="close-pomodoro" class="eink-btn">Exit Blocker</button>
+        </div>
+
+        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center max-w-4xl mx-auto w-full">
+            <!-- Left Side: Timer -->
+            <div class="border-[1.5px] border-ink p-8 text-center bg-paperDark/20">
+                <span class="font-mono text-xs uppercase tracking-widest text-charcoal block mb-2">Pomodoro Session</span>
+                <div id="pomo-timer" class="font-mono text-6xl sm:text-7xl font-semibold tracking-tighter text-ink tabular-nums my-4">
+                    25:00
+                </div>
+                <div class="flex justify-center gap-3 mt-4">
+                    <button id="pomo-toggle" class="eink-btn px-5">Start</button>
+                    <button id="pomo-reset" class="eink-btn px-5">Reset</button>
+                </div>
+            </div>
+
+            <!-- Right Side: Todos Inside Blocker -->
+            <div class="border-[1.5px] border-ink p-6 bg-paper h-full max-h-[60vh] flex flex-col">
+                <h3 class="font-serif text-lg font-medium border-b border-ink pb-2 mb-3">Active Focus Tasks</h3>
+                <ul id="pomo-todo-list" class="divide-y divide-dashed divide-[#888888] overflow-y-auto flex-1 pr-1">
+                    <!-- Synced tasks -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -140,6 +177,7 @@
         const taskInput = document.getElementById('task-input');
         const subtaskInput = document.getElementById('subtask-input');
         const pcTodoList = document.getElementById('pc-todo-list');
+        const pomoTodoList = document.getElementById('pomo-todo-list');
         const emptyState = document.getElementById('empty-state');
         const taskCountEl = document.getElementById('task-count');
 
@@ -151,11 +189,11 @@
         });
 
         function renderPCList() {
-            pcTodoList.innerHTML = '';
             taskCountEl.textContent = `${todos.length} items`;
 
             if (todos.length === 0) {
                 pcTodoList.classList.add('hidden');
+                pomoTodoList.innerHTML = '';
                 emptyState.classList.remove('hidden');
                 return;
             }
@@ -163,28 +201,44 @@
             pcTodoList.classList.remove('hidden');
             emptyState.classList.add('hidden');
 
-            todos.forEach((todo, index) => {
-                const li = document.createElement('li');
-                li.className = 'border-[1.5px] border-ink p-4 bg-paperDark/20 flex flex-col gap-2';
-
+            const pcHTML = todos.map((todo, index) => {
                 let subtasksHTML = '';
                 if (todo.subtasks && todo.subtasks.length > 0) {
-                    subtasksHTML = '<ul class="ml-4 space-y-1 border-l border-dashed border-[#888888] pl-3 mt-1">';
+                    subtasksHTML = '<ul class="ml-4 space-y-1 border-l border-dashed border-[#888888] pl-3 mt-1.5">';
                     todo.subtasks.forEach(sub => {
                         subtasksHTML += `<li class="font-serif text-sm text-charcoal">• ${sub.text}</li>`;
                     });
                     subtasksHTML += '</ul>';
                 }
 
-                li.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="font-serif text-lg font-medium text-ink">${todo.text}</span>
-                        <button data-index="${index}" class="delete-btn font-mono text-[10px] uppercase tracking-wider border border-ink px-2.5 py-1 hover:bg-ink hover:text-paper">Delete</button>
-                    </div>
-                    ${subtasksHTML}
-                `;
-                pcTodoList.appendChild(li);
-            });
+                return `
+                    <li class="border-[1.5px] border-ink p-3.5 bg-paperDark/20 flex flex-col gap-2" data-index="${index}">
+                        <div class="flex items-center justify-between">
+                            <span class="font-serif text-base font-medium text-ink">${todo.text}</span>
+                            <button data-index="${index}" class="delete-btn font-mono text-[10px] uppercase tracking-wider border border-ink px-2.5 py-1 hover:bg-ink hover:text-paper">Delete</button>
+                        </div>
+                        ${subtasksHTML}
+                    </li>`;
+            }).join('');
+
+            const pomoHTML = todos.map((todo) => {
+                let subtasksHTML = '';
+                if (todo.subtasks && todo.subtasks.length > 0) {
+                    subtasksHTML = '<ul class="ml-5 mt-1 space-y-1 border-l border-dashed border-[#888888] pl-2">';
+                    todo.subtasks.forEach(sub => {
+                        subtasksHTML += `<li class="font-serif text-xs text-charcoal">• ${sub.text}</li>`;
+                    });
+                    subtasksHTML += '</ul>';
+                }
+                return `
+                    <li class="py-2">
+                        <span class="font-serif text-sm font-medium text-ink">${todo.text}</span>
+                        ${subtasksHTML}
+                    </li>`;
+            }).join('');
+
+            pcTodoList.innerHTML = pcHTML;
+            pomoTodoList.innerHTML = pomoHTML;
         }
 
         // Add task event
@@ -221,6 +275,53 @@
                 todos.splice(index, 1);
                 set(todosRef, todos);
             }
+        });
+
+        // Pomodoro Blocker Logic for PC
+        const modal = document.getElementById('pomodoro-modal');
+        document.getElementById('open-pomodoro').addEventListener('click', () => modal.classList.remove('hidden'));
+        document.getElementById('close-pomodoro').addEventListener('click', () => modal.classList.add('hidden'));
+
+        let pomoTime = 25 * 60;
+        let pomoInterval = null;
+        let isRunning = false;
+        const timerDisplay = document.getElementById('pomo-timer');
+        const toggleBtn = document.getElementById('pomo-toggle');
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(pomoTime / 60);
+            const secs = pomoTime % 60;
+            timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (isRunning) {
+                clearInterval(pomoInterval);
+                isRunning = false;
+                toggleBtn.textContent = 'Start';
+            } else {
+                isRunning = true;
+                toggleBtn.textContent = 'Pause';
+                pomoInterval = setInterval(() => {
+                    if (pomoTime > 0) {
+                        pomoTime--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(pomoInterval);
+                        alert('Pomodoro session completed!');
+                        isRunning = false;
+                        toggleBtn.textContent = 'Start';
+                    }
+                }, 1000);
+            }
+        });
+
+        document.getElementById('pomo-reset').addEventListener('click', () => {
+            clearInterval(pomoInterval);
+            isRunning = false;
+            pomoTime = 25 * 60;
+            updateTimerDisplay();
+            toggleBtn.textContent = 'Start';
         });
     </script>
 </body>
