@@ -13,6 +13,25 @@
 
     <script>
 
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Newsreader', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        paper: '#F4F3EF',
+                        paperDark: '#EAE8E1',
+                        ink: '#111111',
+                        charcoal: '#555555',
+                    }
+                }
+            }
+        }
+
+
+        
                 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
         
@@ -38,22 +57,7 @@
 
 
         
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['Newsreader', 'Georgia', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        paper: '#F4F3EF',
-                        paperDark: '#EAE8E1',
-                        ink: '#111111',
-                        charcoal: '#555555',
-                    }
-                }
-            }
-        }
+        
 
         
     </script>
