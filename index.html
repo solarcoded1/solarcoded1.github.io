@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Daily Sheet — E-Paper To-Do</title>
-    <!-- Tailwind CSS for layout structure -->
+    <title>Daily Sheet — Select Platform</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Editorial Serif & Crisp Monospace Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,8 +18,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        serif: ['Newsreader', 'Georgia', 'Times New Roman', 'serif'],
-                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+                        serif: ['Newsreader', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
                         paper: '#F4F3EF',
@@ -33,385 +33,79 @@
     </script>
 
     <style>
-        /* Authentic matte e-paper base */
         body {
             background-color: #F4F3EF;
             color: #111111;
-            /* Subtle fine-grain paper fiber overlay using inline SVG noise */
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Crisp square e-ink checkbox */
-        .eink-checkbox {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 1.5px solid #111111;
-            border-radius: 0px;
-            background-color: transparent;
-            display: inline-grid;
-            place-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            margin-top: 3px;
-        }
-
-        .eink-checkbox:checked {
-            background-color: #111111;
-            border-color: #111111;
-        }
-
-        .eink-checkbox::before {
-            content: "";
-            width: 10px;
-            height: 10px;
-            transform: scale(0);
-            background-color: #F4F3EF;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-
-        .eink-checkbox:checked::before {
-            transform: scale(1);
-        }
-
-        .eink-checkbox:focus-visible,
-        input:focus-visible,
-        button:focus-visible {
+        a:focus-visible {
             outline: 1.5px solid #111111;
             outline-offset: 2px;
         }
-
-        /* Tabular numbers so ticking seconds never jitter horizontally */
-        .tabular-nums {
-            font-variant-numeric: tabular-nums;
-        }
     </style>
 </head>
-<body class="min-h-screen p-4 sm:p-8 md:p-12 selection:bg-ink selection:text-paper">
+<body class="min-h-screen flex items-center justify-center p-6 selection:bg-ink selection:text-paper">
 
-    <!-- Outer E-Paper Sheet Container (1/3 Left, 2/3 Right on Desktop) -->
-    <main class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
+    <main class="w-full max-w-lg border-[1.5px] border-ink bg-paper p-6 sm:p-10">
+        
+        <header class="border-b-[1.5px] border-ink pb-4 mb-8 text-center">
+            <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-charcoal block mb-1">
+                E-Paper Workspace
+            </span>
+            <h1 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-ink">
+                Daily Sheet
+            </h1>
+        </header>
 
-        <!-- LEFT COLUMN (1/3): Time & Weather Ledger -->
-        <aside class="md:col-span-1 space-y-6">
-
-            <!-- Time & Date Box -->
-            <section aria-label="Current Time and Date" class="border-[1.5px] border-ink bg-paper p-5">
-                <div class="flex items-center justify-between border-b border-ink pb-2 mb-4">
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-charcoal">Local Time</span>
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink">GMT / BST</span>
+        <div class="space-y-4">
+            <!-- Phone Display Option -->
+            <a 
+                href="phone.html" 
+                class="group block border-[1.5px] border-ink bg-transparent p-5 hover:bg-ink hover:text-paper transition-none"
+            >
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono text-xs uppercase tracking-[0.14em] font-semibold">
+                        01 / Mobile View
+                    </span>
+                    <span class="font-mono text-sm">&rarr;</span>
                 </div>
-                
-                <div id="live-clock" class="font-mono text-3xl sm:text-4xl font-semibold tracking-tight text-ink tabular-nums">
-                    00:00:00
-                </div>
-                
-                <p id="live-date" class="font-serif text-lg text-ink mt-2 pt-2 border-t border-dashed border-[#888888]">
-                    Loading date...
+                <h2 class="font-serif text-2xl font-medium">
+                    Phone Display
+                </h2>
+                <p class="font-serif text-sm text-charcoal group-hover:text-paperDark mt-1">
+                    Clean read-only sheet with live clock, Stevenage weather, and one-tap task completion.
                 </p>
-            </section>
+            </a>
 
-            <!-- Weather Box (Stevenage, UK) -->
-            <section aria-label="Local Weather" class="border-[1.5px] border-ink bg-paper p-5">
-                <div class="flex items-center justify-between border-b border-ink pb-2 mb-4">
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-charcoal">Weather</span>
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink">Stevenage, UK</span>
+            <!-- PC Control Panel Option -->
+            <a 
+                href="pc.html" 
+                class="group block border-[1.5px] border-ink bg-transparent p-5 hover:bg-ink hover:text-paper transition-none"
+            >
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono text-xs uppercase tracking-[0.14em] font-semibold">
+                        02 / Desktop View
+                    </span>
+                    <span class="font-mono text-sm">&rarr;</span>
                 </div>
+                <h2 class="font-serif text-2xl font-medium">
+                    PC Control Panel
+                </h2>
+                <p class="font-serif text-sm text-charcoal group-hover:text-paperDark mt-1">
+                    Command center to write main tasks, attach sub-tasks, and manage your daily sheet.
+                </p>
+            </a>
+        </div>
 
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <div class="flex items-baseline gap-1">
-                            <span id="weather-temp" class="font-mono text-3xl sm:text-4xl font-semibold text-ink tabular-nums">--°C</span>
-                        </div>
-                        <p id="weather-condition" class="font-serif text-lg text-ink mt-1">
-                            Fetching reading...
-                        </p>
-                    </div>
-
-                    <!-- Monochrome 1.5px Stroke Weather Icon -->
-                    <div id="weather-icon" class="text-ink pt-1" aria-hidden="true">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
-                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-2.5 border-t border-dashed border-[#888888] flex items-center justify-between font-mono text-xs text-charcoal">
-                    <span>WIND SPEED</span>
-                    <span id="weather-wind" class="text-ink font-medium tabular-nums">-- km/h</span>
-                </div>
-            </section>
-
-        </aside>
-
-        <!-- RIGHT COLUMN (2/3): Minimalist To-Do List -->
-        <section aria-label="To-Do List" class="md:col-span-2 border-[1.5px] border-ink bg-paper p-6 sm:p-8">
-            
-            <!-- Sheet Header -->
-            <header class="border-b-[1.5px] border-ink pb-3 mb-6 flex items-baseline justify-between">
-                <h1 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-ink">
-                    To-Do
-                </h1>
-                <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">
-                    0 items
-                </span>
-            </header>
-
-            <!-- Plain Input Form -->
-            <form id="todo-form" class="flex flex-col sm:flex-row gap-3 mb-6">
-                <label for="todo-input" class="sr-only">New task</label>
-                <input 
-                    type="text" 
-                    id="todo-input" 
-                    placeholder="Write a task..." 
-                    autocomplete="off"
-                    class="flex-1 bg-transparent border-[1.5px] border-ink px-3.5 py-2.5 font-serif text-lg text-ink placeholder-[#777777] focus:bg-paperDark/50 focus:outline-none"
-                >
-                <button 
-                    type="submit" 
-                    class="border-[1.5px] border-ink bg-transparent text-ink hover:bg-ink hover:text-paper active:bg-ink active:text-paper font-mono text-xs uppercase tracking-[0.14em] px-6 py-3 cursor-pointer transition-none"
-                >
-                    Add
-                </button>
-            </form>
-
-            <!-- Task List -->
-            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink">
-                <!-- Tasks rendered dynamically -->
-            </ul>
-
-            <!-- Minimal Empty State -->
-            <p id="empty-state" class="hidden py-10 text-center font-serif italic text-lg text-charcoal border-t border-b border-ink">
-                <a href="phone.html">pHONE APP</a>
+        <footer class="mt-8 pt-4 border-t border-dashed border-[#888888] text-center">
+            <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal">
+                Select your current device to continue
             </p>
-
-        </section>
+        </footer>
 
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            /* =========================================================
-               1. LIVE CLOCK & DATE (UPDATED EVERY SECOND)
-               ========================================================= */ 
-            const clockEl = document.getElementById('live-clock');
-            const dateEl = document.getElementById('live-date');
-
-            function updateClockAndDate() {
-                const now = new Date();
-
-                // Exact HH:MM:SS 24-hour tabular format
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                clockEl.textContent = `${hours}:${minutes}:${seconds}`;
-
-                // Editorial full date: e.g. "Sunday, 15 November 2026"
-                const weekday = now.toLocaleDateString('en-GB', { weekday: 'long' });
-                const day = now.getDate();
-                const month = now.toLocaleDateString('en-GB', { month: 'long' });
-                const year = now.getFullYear();
-                dateEl.textContent = `${weekday}, ${day} ${month} ${year}`;
-            }
-
-            updateClockAndDate();
-            setInterval(updateClockAndDate, 1000);
-
-            /* =========================================================
-               2. LIVE WEATHER FOR STEVENAGE, UK (OPEN-METEO API)
-               ========================================================= */
-            const tempEl = document.getElementById('weather-temp');
-            const conditionEl = document.getElementById('weather-condition');
-            const windEl = document.getElementById('weather-wind');
-            const iconEl = document.getElementById('weather-icon');
-
-            // Monochrome 1.5px stroke SVG icons
-            const WEATHER_ICONS = {
-                clear: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-                partlyCloudy: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>`,
-                overcast: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
-                fog: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14h16M4 18h12M6 10h14"/></svg>`,
-                rain: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v2M12 17v4M16 19v2"/></svg>`,
-                snow: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19h.01M12 18h.01M16 19h.01M10 21h.01M14 21h.01"/></svg>`,
-                storm: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/></svg>`
-            };
-
-            function decodeWeatherCode(code) {
-                if (code === 0) return { label: 'Clear Sky', icon: WEATHER_ICONS.clear };
-                if (code === 1) return { label: 'Mainly Clear', icon: WEATHER_ICONS.partlyCloudy };
-                if (code === 2) return { label: 'Partly Cloudy', icon: WEATHER_ICONS.partlyCloudy };
-                if (code === 3) return { label: 'Overcast', icon: WEATHER_ICONS.overcast };
-                if (code === 45 || code === 48) return { label: 'Foggy', icon: WEATHER_ICONS.fog };
-                if ([51, 53, 55, 56, 57].includes(code)) return { label: 'Light Drizzle', icon: WEATHER_ICONS.rain };
-                if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { label: 'Rain', icon: WEATHER_ICONS.rain };
-                if ([71, 73, 75, 77, 85, 86].includes(code)) return { label: 'Snow', icon: WEATHER_ICONS.snow };
-                if ([95, 96, 99].includes(code)) return { label: 'Thunderstorm', icon: WEATHER_ICONS.storm };
-                return { label: 'Overcast', icon: WEATHER_ICONS.overcast };
-            }
-
-            async function fetchStevenageWeather() {
-                try {
-                    const url = 'https://api.open-meteo.com/v1/forecast?latitude=51.9022&longitude=-0.2026&current=temperature_2m,weather_code,wind_speed_10m&wind_speed_unit=kmh';
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error('Weather response error');
-                    const data = await response.json();
-
-                    if (data && data.current) {
-                        const temp = Math.round(data.current.temperature_2m);
-                        const wind = Math.round(data.current.wind_speed_10m);
-                        const weatherInfo = decodeWeatherCode(data.current.weather_code);
-
-                        tempEl.textContent = `${temp}°C`;
-                        conditionEl.textContent = weatherInfo.label;
-                        windEl.textContent = `${wind} km/h`;
-                        iconEl.innerHTML = weatherInfo.icon;
-                    }
-                } catch (err) {
-                    // Graceful offline fallback
-                    tempEl.textContent = '--°C';
-                    conditionEl.textContent = 'Offline / Unavailable';
-                    windEl.textContent = '-- km/h';
-                }
-            }
-
-            fetchStevenageWeather();
-            // Refresh weather every 15 minutes
-            setInterval(fetchStevenageWeather, 15 * 60 * 1000);
-
-            /* =========================================================
-               3. MINIMALIST TO-DO LIST WITH LOCALSTORAGE
-               ========================================================= */
-            const STORAGE_KEY = 'epaper_todos_v1';
-            const todoForm = document.getElementById('todo-form');
-            const todoInput = document.getElementById('todo-input');
-            const todoList = document.getElementById('todo-list');
-            const emptyState = document.getElementById('empty-state');
-            const taskCountEl = document.getElementById('task-count');
-
-            let todos = [];
-
-            function loadTodos() {
-                try {
-                    const saved = localStorage.getItem(STORAGE_KEY);
-                    if (saved) {
-                        todos = JSON.parse(saved);
-                    } else {
-                        todos = [
-                            { id: '1', text: 'Review morning notes and priorities', completed: false },
-                            { id: '2', text: 'Pick up groceries on the way back', completed: false }
-                        ];
-                        saveTodos();
-                    }
-                } catch (e) {
-                    todos = [];
-                }
-            }
-
-            function saveTodos() {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-                } catch (e) {
-                    // Ignore storage quota errors silently
-                }
-            }
-
-            function escapeHTML(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
-
-            function renderTodos() {
-                todoList.innerHTML = '';
-
-                const remaining = todos.filter(t => !t.completed).length;
-                taskCountEl.textContent = `${remaining} ${remaining === 1 ? 'item' : 'items'} left`;
-
-                if (todos.length === 0) {
-                    todoList.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
-                    return;
-                }
-
-                todoList.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-
-                todos.forEach(todo => {
-                    const li = document.createElement('li');
-                    li.className = 'py-3.5 flex items-start justify-between gap-4';
-                    li.dataset.id = todo.id;
-
-                    li.innerHTML = `
-                        <label class="flex items-start gap-3.5 cursor-pointer flex-1 min-w-0 select-none">
-                            <input 
-                                type="checkbox" 
-                                class="eink-checkbox toggle-checkbox" 
-                                ${todo.completed ? 'checked' : ''}
-                            >
-                            <span class="font-serif text-lg leading-snug break-words ${
-                                todo.completed ? 'line-through text-[#666666]' : 'text-ink'
-                            }">
-                                ${escapeHTML(todo.text)}
-                            </span>
-                        </label>
-                        <button 
-                            type="button" 
-                            class="remove-btn font-mono text-xs uppercase tracking-[0.1em] text-charcoal hover:text-ink underline-offset-4 hover:underline pt-1 cursor-pointer shrink-0"
-                            aria-label="Remove task"
-                        >
-                            Remove
-                        </button>
-                    `;
-
-                    todoList.appendChild(li);
-                });
-            }
-
-            // Add new task
-            todoForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const text = todoInput.value.trim();
-                if (!text) {
-                    todoInput.focus();
-                    return;
-                }
-
-                todos.unshift({
-                    id: Date.now().toString(),
-                    text,
-                    completed: false
-                });
-
-                todoInput.value = '';
-                saveTodos();
-                renderTodos();
-            });
-
-            // Toggle completion or remove task
-            todoList.addEventListener('click', (e) => {
-                const li = e.target.closest('li');
-                if (!li) return;
-                const id = li.dataset.id;
-
-                if (e.target.classList.contains('toggle-checkbox')) {
-                    const item = todos.find(t => t.id === id);
-                    if (item) {
-                        item.completed = e.target.checked;
-                        saveTodos();
-                        renderTodos();
-                    }
-                } else if (e.target.classList.contains('remove-btn')) {
-                    todos = todos.filter(t => t.id !== id);
-                    saveTodos();
-                    renderTodos();
-                }
-            });
-
-            loadTodos();
-            renderTodos();
-        });
-    </script>
 </body>
 </html>
