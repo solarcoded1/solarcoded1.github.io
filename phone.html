@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Daily Sheet — Phone Landscape View</title>
+    <title>Daily Sheet — Phone View</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts -->
@@ -52,7 +52,7 @@
             place-content: center;
             cursor: pointer;
             flex-shrink: 0;
-            margin-top: 1px;
+            margin-top: 2px;
         }
 
         .eink-checkbox:checked {
@@ -78,66 +78,61 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-3 sm:p-5 selection:bg-ink selection:text-paper flex items-center">
+<body class="min-h-screen p-4 selection:bg-ink selection:text-paper">
 
-    <main class="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 items-start">
+    <main class="max-w-md mx-auto space-y-5">
 
-        <!-- LEFT COLUMN (1/3): Clock & Weather -->
-        <aside class="sm:col-span-1 space-y-4">
+        <!-- TIME & DATE BOX -->
+        <section class="border-[1.5px] border-ink bg-paper p-4 text-center">
+            <div id="live-clock" class="font-mono text-3xl font-semibold tracking-tight text-ink tabular-nums">
+                00:00:00
+            </div>
+            <p id="live-date" class="font-serif text-base text-ink mt-1 pt-1 border-t border-dashed border-[#888888]">
+                Loading date...
+            </p>
+        </section>
 
-            <!-- TIME & DATE BOX -->
-            <section class="border-[1.5px] border-ink bg-paper p-3.5 sm:p-4 text-center">
-                <div id="live-clock" class="font-mono text-2xl lg:text-3xl font-semibold tracking-tight text-ink tabular-nums">
-                    00:00:00
+        <!-- WEATHER BOX -->
+        <section class="border-[1.5px] border-ink bg-paper p-4">
+            <div class="flex items-center justify-between border-b border-ink pb-2 mb-3">
+                <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink font-semibold">Stevenage, UK</span>
+                <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-charcoal">Live</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <span id="weather-temp" class="font-mono text-3xl font-semibold text-ink tabular-nums">--°C</span>
+                    <p id="weather-condition" class="font-serif text-base text-ink mt-0.5">
+                        Fetching reading...
+                    </p>
                 </div>
-                <p id="live-date" class="font-serif text-sm sm:text-base text-ink mt-1 pt-1 border-t border-dashed border-[#888888]">
-                    Loading date...
-                </p>
-            </section>
-
-            <!-- WEATHER BOX -->
-            <section class="border-[1.5px] border-ink bg-paper p-3.5 sm:p-4">
-                <div class="flex items-center justify-between border-b border-ink pb-1.5 mb-2.5">
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink font-semibold">Stevenage, UK</span>
-                    <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal">Live</span>
+                <div id="weather-icon" class="text-ink" aria-hidden="true">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                    </svg>
                 </div>
+            </div>
 
-                <div class="flex items-center justify-between gap-2">
-                    <div>
-                        <span id="weather-temp" class="font-mono text-2xl lg:text-3xl font-semibold text-ink tabular-nums">--°C</span>
-                        <p id="weather-condition" class="font-serif text-sm sm:text-base text-ink mt-0.5">
-                            Fetching...
-                        </p>
-                    </div>
-                    <div id="weather-icon" class="text-ink shrink-0" aria-hidden="true">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
-                            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
-                        </svg>
-                    </div>
+            <div class="mt-3 pt-2.5 border-t border-dashed border-[#888888] grid grid-cols-3 gap-2 font-mono text-[10px] text-charcoal text-center">
+                <div>
+                    <span class="block text-[9px]">WIND</span>
+                    <span id="weather-wind" class="text-ink font-medium tabular-nums">-- km/h</span>
                 </div>
-
-                <div class="mt-2.5 pt-2 border-t border-dashed border-[#888888] grid grid-cols-3 gap-1 font-mono text-[10px] text-charcoal text-center">
-                    <div>
-                        <span class="block text-[8px] uppercase">Wind</span>
-                        <span id="weather-wind" class="text-ink font-medium tabular-nums">-- km/h</span>
-                    </div>
-                    <div class="border-x border-dashed border-[#888888]">
-                        <span class="block text-[8px] uppercase">Precip</span>
-                        <span id="weather-precip" class="text-ink font-medium tabular-nums">-- mm</span>
-                    </div>
-                    <div>
-                        <span class="block text-[8px] uppercase">Humid</span>
-                        <span id="weather-humidity" class="text-ink font-medium tabular-nums">--%</span>
-                    </div>
+                <div class="border-x border-dashed border-[#888888]">
+                    <span class="block text-[9px]">PRECIP</span>
+                    <span id="weather-precip" class="text-ink font-medium tabular-nums">-- mm</span>
                 </div>
-            </section>
+                <div>
+                    <span class="block text-[9px]">HUMIDITY</span>
+                    <span id="weather-humidity" class="text-ink font-medium tabular-nums">--%</span>
+                </div>
+            </div>
+        </section>
 
-        </aside>
-
-        <!-- RIGHT COLUMN (2/3): To-Do Display -->
-        <section class="sm:col-span-2 border-[1.5px] border-ink bg-paper p-4 sm:p-6">
-            <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
-                <h1 class="font-serif text-xl sm:text-2xl font-medium tracking-tight text-ink">
+        <!-- TO-DO LIST DISPLAY -->
+        <section class="border-[1.5px] border-ink bg-paper p-5">
+            <header class="border-b-[1.5px] border-ink pb-2.5 mb-4 flex items-baseline justify-between">
+                <h1 class="font-serif text-2xl font-medium tracking-tight text-ink">
                     To-Do Display
                 </h1>
                 <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">
@@ -145,8 +140,8 @@
                 </span>
             </header>
 
-            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink max-h-[65vh] overflow-y-auto pr-1">
-                <!-- Tasks rendered dynamically -->
+            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink">
+                <!-- Tasks rendered dynamically from Firebase -->
             </ul>
 
             <p id="empty-state" class="hidden py-8 text-center font-serif italic text-base text-charcoal border-t border-b border-ink">
@@ -156,7 +151,6 @@
 
     </main>
 
-    <!-- Firebase Real-Time Sync Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -169,146 +163,143 @@
         const db = getDatabase(app);
         const todosRef = ref(db, 'todos');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Live Clock & Date
-            const clockEl = document.getElementById('live-clock');
-            const dateEl = document.getElementById('live-date');
+        let todos = [];
 
-            function updateClockAndDate() {
-                const now = new Date();
-                clockEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-                dateEl.textContent = `${now.toLocaleDateString('en-GB', { weekday: 'long' })}, ${now.getDate()} ${now.toLocaleDateString('en-GB', { month: 'long' })} ${now.getFullYear()}`;
-            }
-            updateClockAndDate();
-            setInterval(updateClockAndDate, 1000);
+        // 1. Live Clock & Date
+        const clockEl = document.getElementById('live-clock');
+        const dateEl = document.getElementById('live-date');
 
-            // 2. Weather (Stevenage)
-            const tempEl = document.getElementById('weather-temp');
-            const conditionEl = document.getElementById('weather-condition');
-            const windEl = document.getElementById('weather-wind');
-            const precipEl = document.getElementById('weather-precip');
-            const humidityEl = document.getElementById('weather-humidity');
-            const iconEl = document.getElementById('weather-icon');
+        function updateClockAndDate() {
+            const now = new Date();
+            clockEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            dateEl.textContent = `${now.toLocaleDateString('en-GB', { weekday: 'long' })}, ${now.getDate()} ${now.toLocaleDateString('en-GB', { month: 'long' })} ${now.getFullYear()}`;
+        }
+        updateClockAndDate();
+        setInterval(updateClockAndDate, 1000);
 
-            const WEATHER_ICONS = {
-                clear: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-                partlyCloudy: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>`,
-                overcast: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
-                rain: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v2M12 17v4M16 19v2"/></svg>`
-            };
+        // 2. Weather (Stevenage)
+        const tempEl = document.getElementById('weather-temp');
+        const conditionEl = document.getElementById('weather-condition');
+        const windEl = document.getElementById('weather-wind');
+        const precipEl = document.getElementById('weather-precip');
+        const humidityEl = document.getElementById('weather-humidity');
+        const iconEl = document.getElementById('weather-icon');
 
-            async function fetchWeather() {
-                try {
-                    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.9022&longitude=-0.2026&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&wind_speed_unit=kmh');
-                    const data = await res.json();
-                    if (data && data.current) {
-                        tempEl.textContent = `${Math.round(data.current.temperature_2m)}°C`;
-                        windEl.textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
-                        precipEl.textContent = `${data.current.precipitation} mm`;
-                        humidityEl.textContent = `${data.current.relative_humidity_2m}%`;
-                        
-                        let code = data.current.weather_code;
-                        let label = 'Overcast';
-                        let icon = WEATHER_ICONS.overcast;
-                        if (code === 0) { label = 'Clear Sky'; icon = WEATHER_ICONS.clear; }
-                        else if (code <= 2) { label = 'Partly Cloudy'; icon = WEATHER_ICONS.partlyCloudy; }
-                        else if (code >= 51) { label = 'Rain'; icon = WEATHER_ICONS.rain; }
-                        
-                        conditionEl.textContent = label;
-                        iconEl.innerHTML = icon;
-                    }
-                } catch (e) {
-                    conditionEl.textContent = 'Unavailable';
+        const WEATHER_ICONS = {
+            clear: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
+            partlyCloudy: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M19.07 4.93l-1.41 1.41M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>`,
+            overcast: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
+            rain: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v2M12 17v4M16 19v2"/></svg>`
+        };
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.9022&longitude=-0.2026&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&wind_speed_unit=kmh');
+                const data = await res.json();
+                if (data && data.current) {
+                    tempEl.textContent = `${Math.round(data.current.temperature_2m)}°C`;
+                    windEl.textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
+                    precipEl.textContent = `${data.current.precipitation} mm`;
+                    humidityEl.textContent = `${data.current.relative_humidity_2m}%`;
+                    
+                    let code = data.current.weather_code;
+                    let label = 'Overcast';
+                    let icon = WEATHER_ICONS.overcast;
+                    if (code === 0) { label = 'Clear Sky'; icon = WEATHER_ICONS.clear; }
+                    else if (code <= 2) { label = 'Partly Cloudy'; icon = WEATHER_ICONS.partlyCloudy; }
+                    else if (code >= 51) { label = 'Rain'; icon = WEATHER_ICONS.rain; }
+                    
+                    conditionEl.textContent = label;
+                    iconEl.innerHTML = icon;
                 }
+            } catch (e) {
+                conditionEl.textContent = 'Unavailable';
             }
-            fetchWeather();
-            setInterval(fetchWeather, 15 * 60 * 1000);
+        }
+        fetchWeather();
+        setInterval(fetchWeather, 15 * 60 * 1000);
 
-            // 3. To-Do List with Firebase Real-Time Sync
-            const todoList = document.getElementById('todo-list');
-            const emptyState = document.getElementById('empty-state');
-            const taskCountEl = document.getElementById('task-count');
+        // 3. Real-time Firebase Sync & Rendering
+        const todoList = document.getElementById('todo-list');
+        const emptyState = document.getElementById('empty-state');
+        const taskCountEl = document.getElementById('task-count');
 
-            let todos = [];
+        function renderTodos() {
+            todoList.innerHTML = '';
+            taskCountEl.textContent = `${todos.length} items`;
 
-            function renderTodos() {
-                todoList.innerHTML = '';
-                taskCountEl.textContent = `${todos.length} items`;
+            if (todos.length === 0) {
+                todoList.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
 
-                if (todos.length === 0) {
-                    todoList.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
-                    return;
+            todoList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = 'py-3';
+                li.dataset.index = index;
+
+                let subtasksHTML = '';
+                if (todo.subtasks && todo.subtasks.length > 0) {
+                    subtasksHTML = '<ul class="ml-7 mt-2 space-y-1.5 border-l border-dashed border-[#888888] pl-3">';
+                    todo.subtasks.forEach((sub, subIndex) => {
+                        subtasksHTML += `
+                            <li class="flex items-center justify-between gap-2" data-sub-index="${subIndex}">
+                                <label class="flex items-center gap-2 cursor-pointer flex-1">
+                                    <input type="checkbox" class="eink-checkbox toggle-subtask" ${sub.completed ? 'checked' : ''}>
+                                    <span class="font-serif text-sm ${sub.completed ? 'line-through text-[#666666]' : 'text-ink'}">${sub.text}</span>
+                                </label>
+                            </li>`;
+                    });
+                    subtasksHTML += '</ul>';
                 }
 
-                todoList.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-
-                todos.forEach(todo => {
-                    const li = document.createElement('li');
-                    li.className = 'py-2.5';
-                    li.dataset.id = todo.id;
-
-                    let subtasksHTML = '';
-                    if (todo.subtasks && todo.subtasks.length > 0) {
-                        subtasksHTML = '<ul class="ml-7 mt-1.5 space-y-1.5 border-l border-dashed border-[#888888] pl-3">';
-                        todo.subtasks.forEach(sub => {
-                            subtasksHTML += `
-                                <li class="flex items-center justify-between gap-2" data-sub-id="${sub.id}">
-                                    <label class="flex items-center gap-2 cursor-pointer flex-1">
-                                        <input type="checkbox" class="eink-checkbox toggle-subtask" ${sub.completed ? 'checked' : ''}>
-                                        <span class="font-serif text-sm ${sub.completed ? 'line-through text-[#666666]' : 'text-ink'}">${sub.text}</span>
-                                    </label>
-                                </li>`;
-                        });
-                        subtasksHTML += '</ul>';
-                    }
-
-                    li.innerHTML = `
-                        <div class="flex items-start justify-between gap-3">
-                            <label class="flex items-start gap-3 cursor-pointer flex-1 select-none">
-                                <input type="checkbox" class="eink-checkbox toggle-todo" ${todo.completed ? 'checked' : ''}>
-                                <span class="font-serif text-base leading-snug break-words ${todo.completed ? 'line-through text-[#666666]' : 'text-ink'}">
-                                    ${todo.text}
-                                </span>
-                            </label>
-                        </div>
-                        ${subtasksHTML}
-                    `;
-                    todoList.appendChild(li);
-                });
-            }
-
-            // Listen for live updates from Firebase database
-            onValue(todosRef, (snapshot) => {
-                const data = snapshot.val();
-                todos = data ? data : [];
-                renderTodos();
+                li.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <label class="flex items-start gap-3 cursor-pointer flex-1 select-none">
+                            <input type="checkbox" class="eink-checkbox toggle-todo" ${todo.completed ? 'checked' : ''}>
+                            <span class="font-serif text-base leading-snug break-words ${todo.completed ? 'line-through text-[#666666]' : 'text-ink'}">
+                                ${todo.text}
+                            </span>
+                        </label>
+                    </div>
+                    ${subtasksHTML}
+                `;
+                todoList.appendChild(li);
             });
+        }
 
-            // Checkbox logic: Auto-delete main task or subtask when completed & sync to Firebase
-            todoList.addEventListener('change', (e) => {
-                const li = e.target.closest('li[data-id]');
-                if (!li) return;
-                const todoId = li.dataset.id;
+        // Listen for database changes live
+        onValue(todosRef, (snapshot) => {
+            const data = snapshot.val();
+            todos = data ? data : [];
+            renderTodos();
+        });
 
-                if (e.target.classList.contains('toggle-todo')) {
-                    setTimeout(() => {
-                        todos = todos.filter(t => t.id !== todoId);
+        // Checkbox actions (auto-delete on completion)
+        todoList.addEventListener('change', (e) => {
+            const li = e.target.closest('li[data-index]');
+            if (!li) return;
+            const index = parseInt(li.dataset.index);
+
+            if (e.target.classList.contains('toggle-todo')) {
+                setTimeout(() => {
+                    todos.splice(index, 1);
+                    set(todosRef, todos);
+                }, 300);
+            } else if (e.target.classList.contains('toggle-subtask')) {
+                const subLi = e.target.closest('li[data-sub-index]');
+                const subIndex = parseInt(subLi.dataset.subIndex);
+                setTimeout(() => {
+                    if (todos[index] && todos[index].subtasks) {
+                        todos[index].subtasks.splice(subIndex, 1);
                         set(todosRef, todos);
-                    }, 300);
-                } else if (e.target.classList.contains('toggle-subtask')) {
-                    const subLi = e.target.closest('li[data-sub-id]');
-                    const subId = subLi.dataset.subId;
-                    const todo = todos.find(t => t.id === todoId);
-                    if (todo && todo.subtasks) {
-                        setTimeout(() => {
-                            todo.subtasks = todo.subtasks.filter(s => s.id !== subId);
-                            set(todosRef, todos);
-                        }, 300);
                     }
-                }
-            });
+                }, 300);
+            }
         });
     </script>
 </body>
