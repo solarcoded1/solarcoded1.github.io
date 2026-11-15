@@ -6,13 +6,12 @@
     <title>Daily Sheet — PC Control</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Editorial Serif & Crisp Monospace Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
 
     <script>
-
         tailwind.config = {
             theme: {
                 extend: {
@@ -29,37 +28,6 @@
                 }
             }
         }
-
-
-        
-                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-        
-        const firebaseConfig = {
-            databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const todosRef = ref(db, 'todos');
-        
-        // Whenever you modify todos on PC, save to Firebase:
-        function saveTodos() {
-            set(todosRef, todos);
-        }
-        
-        // Listen for live updates from database:
-        onValue(todosRef, (snapshot) => {
-            const data = snapshot.val();
-            todos = data ? data : [];
-            renderTodos();
-        });
-
-
-        
-        
-
-        
     </script>
 
     <style>
@@ -148,7 +116,7 @@
                     <span>&times;</span>
                 </button>
                 <p class="font-serif text-xs text-charcoal italic pt-1">
-                    Changes save automatically to local storage. To sync across devices over Wi-Fi or the web, connect a shared database URL.
+                    Connected live via Firebase Realtime Database. Changes sync instantly across your PC and phone display.
                 </p>
             </section>
 
@@ -197,7 +165,19 @@
 
     </main>
 
-    <script>
+    <!-- Firebase Real-Time Sync Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const todosRef = ref(db, 'todos');
+
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Clock & Date
             const clockEl = document.getElementById('live-clock');
@@ -211,8 +191,6 @@
             updateClock();
             setInterval(updateClock, 1000);
 
-            // 2. Shared Storage Key (Matches phone.html)
-            const STORAGE_KEY = 'epaper_todos_v1';
             const todoForm = document.getElementById('todo-form');
             const todoInput = document.getElementById('todo-input');
             const todoList = document.getElementById('todo-list');
@@ -221,19 +199,6 @@
             const clearAllBtn = document.getElementById('clear-all-btn');
 
             let todos = [];
-
-            function loadTodos() {
-                try {
-                    const saved = localStorage.getItem(STORAGE_KEY);
-                    todos = saved ? JSON.parse(saved) : [];
-                } catch (e) {
-                    todos = [];
-                }
-            }
-
-            function saveTodos() {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-            }
 
             function escapeHTML(str) {
                 const div = document.createElement('div');
@@ -259,7 +224,6 @@
                     li.className = 'py-4';
                     li.dataset.id = todo.id;
 
-                    // Subtasks list HTML
                     let subtasksHTML = '<ul class="ml-7 mt-2.5 space-y-2 border-l border-dashed border-[#888888] pl-3">';
                     if (todo.subtasks && todo.subtasks.length > 0) {
                         todo.subtasks.forEach(sub => {
@@ -273,7 +237,6 @@
                             `;
                         });
                     }
-                    // Inline Add Subtask Form
                     subtasksHTML += `
                         <li class="pt-1">
                             <form class="subtask-form flex gap-2">
@@ -311,6 +274,13 @@
                 });
             }
 
+            // Listen for live database updates
+            onValue(todosRef, (snapshot) => {
+                const data = snapshot.val();
+                todos = data ? data : [];
+                renderTodos();
+            });
+
             // Add Main Task
             todoForm.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -325,8 +295,7 @@
                 });
 
                 todoInput.value = '';
-                saveTodos();
-                renderTodos();
+                set(todosRef, todos);
             });
 
             // Handle Sub-task additions
@@ -346,8 +315,7 @@
                             text: subText,
                             completed: false
                         });
-                        saveTodos();
-                        renderTodos();
+                        set(todosRef, todos);
                     }
                 }
             });
@@ -360,16 +328,14 @@
 
                 if (e.target.classList.contains('delete-todo-btn') || e.target.classList.contains('complete-todo-btn')) {
                     todos = todos.filter(t => t.id !== todoId);
-                    saveTodos();
-                    renderTodos();
+                    set(todosRef, todos);
                 } else if (e.target.classList.contains('remove-sub-btn')) {
                     const subLi = e.target.closest('li[data-sub-id]');
                     const subId = subLi.dataset.subId;
                     const todo = todos.find(t => t.id === todoId);
                     if (todo && todo.subtasks) {
                         todo.subtasks = todo.subtasks.filter(s => s.id !== subId);
-                        saveTodos();
-                        renderTodos();
+                        set(todosRef, todos);
                     }
                 }
             });
@@ -378,13 +344,9 @@
             clearAllBtn.addEventListener('click', () => {
                 if (todos.length > 0 && confirm('Clear all tasks from the sheet?')) {
                     todos = [];
-                    saveTodos();
-                    renderTodos();
+                    set(todosRef, todos);
                 }
             });
-
-            loadTodos();
-            renderTodos();
         });
     </script>
 </body>
