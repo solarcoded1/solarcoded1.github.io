@@ -1,392 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>Daily Sheet — Landscape Mobile View</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['Newsreader', 'Georgia', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        paper: '#F4F3EF',
-                        paperDark: '#EAE8E1',
-                        ink: '#111111',
-                        charcoal: '#555555',
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #F4F3EF;
-            color: #111111;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .eink-checkbox {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 1.5px solid #111111;
-            border-radius: 0px;
-            background-color: transparent;
-            display: inline-grid;
-            place-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .eink-checkbox:checked {
-            background-color: #111111;
-            border-color: #111111;
-        }
-
-        .eink-checkbox::before {
-            content: "";
-            width: 12px;
-            height: 12px;
-            transform: scale(0);
-            background-color: #F4F3EF;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-
-        .eink-checkbox:checked::before {
-            transform: scale(1);
-        }
-
-        .tabular-nums {
-            font-variant-numeric: tabular-nums;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Daily Sheet — Landscape Mobile View</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<script>
+tailwind.config={theme:{extend:{fontFamily:{serif:['Newsreader','Georgia','serif'],mono:['JetBrains Mono','monospace']},colors:{paper:'#F4F3EF',paperDark:'#EAE8E1',ink:'#111111',charcoal:'#3A3A3A'}}}}
+</script>
+<style>
+html{-webkit-text-size-adjust:100%}
+body{background-color:#F4F3EF;color:#111;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");-webkit-font-smoothing:antialiased}
+.eink-checkbox{appearance:none;-webkit-appearance:none;width:28px;height:28px;border:1.5px solid #111;border-radius:0;background:transparent;display:inline-grid;place-content:center;cursor:pointer;flex-shrink:0}
+.eink-checkbox.sub{width:24px;height:24px}
+.eink-checkbox:checked{background:#111}
+.eink-checkbox::before{content:"";width:16px;height:16px;transform:scale(0);background:#F4F3EF;clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%)}
+.eink-checkbox:checked::before{transform:scale(1)}
+.tabular-nums{font-variant-numeric:tabular-nums}
+.lbl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+</style>
 </head>
-<body class="min-h-screen p-3 sm:p-5 selection:bg-ink selection:text-paper flex flex-col justify-between">
+<body class="min-h-[100dvh] p-3 selection:bg-ink selection:text-paper">
 
-    <!-- TOP BAR CONTROLS -->
-    <div class="w-full max-w-5xl mx-auto flex justify-end mb-2">
-        <button id="open-pomodoro" class="font-mono text-[11px] uppercase tracking-wider border-[1.5px] border-ink bg-paper px-3 py-1 hover:bg-ink hover:text-paper transition-none">
-            Start Focus Timer
-        </button>
-    </div>
+<div class="w-full max-w-5xl mx-auto flex justify-between items-center mb-3">
+  <span class="lbl font-semibold">Daily Sheet</span>
+  <div class="flex gap-2">
+    <button id="focus-chip" class="lbl border-[1.5px] border-ink bg-ink text-paper px-3 py-2 hidden tabular-nums"></button>
+    <button id="fs-btn" class="lbl border-[1.5px] border-ink bg-paper px-3 py-2 active:bg-ink active:text-paper">Fullscreen</button>
+  </div>
+</div>
 
-    <!-- MAIN LANDSCAPE SPLIT (1/3 Left, 2/3 Right) -->
-    <main class="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 items-start flex-1">
+<main class="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-5 gap-3 items-start">
 
-        <!-- LEFT COLUMN (1/3): Clock & Expanded Weather -->
-        <aside class="sm:col-span-1 space-y-3">
+  <aside class="sm:col-span-2 space-y-3">
+    <section class="border-[1.5px] border-ink bg-paper p-3 text-center">
+      <div id="live-clock" class="font-mono text-4xl font-semibold tracking-tight tabular-nums">00:00:00</div>
+      <p id="live-date" class="font-serif text-lg font-medium mt-1 pt-1 border-t border-dashed border-[#888888]">Loading date...</p>
+    </section>
 
-            <!-- TIME & DATE BOX -->
-            <section class="border-[1.5px] border-ink bg-paper p-3 text-center">
-                <div id="live-clock" class="font-mono text-2xl font-semibold tracking-tight text-ink tabular-nums">
-                    00:00:00
-                </div>
-                <p id="live-date" class="font-serif text-xs text-ink mt-1 pt-1 border-t border-dashed border-[#888888]">
-                    Loading date...
-                </p>
-            </section>
+    <section class="border-[1.5px] border-ink bg-paper p-3">
+      <div class="flex items-center justify-between border-b border-ink pb-1.5 mb-2">
+        <span class="lbl font-semibold">Stevenage, UK</span>
+        <span class="lbl text-charcoal">Live</span>
+      </div>
 
-            <!-- WEATHER & 3-DAY FORECAST BOX -->
-            <section class="border-[1.5px] border-ink bg-paper p-3">
-                <div class="flex items-center justify-between border-b border-ink pb-1.5 mb-2">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-ink font-semibold">Stevenage, UK</span>
-                    <span class="font-mono text-[9px] uppercase tracking-[0.14em] text-charcoal">Live</span>
-                </div>
-
-                <div class="flex items-center justify-between gap-2">
-                    <div>
-                        <span id="weather-temp" class="font-mono text-2xl font-semibold text-ink tabular-nums">--°C</span>
-                        <p id="weather-condition" class="font-serif text-xs text-ink mt-0.5">Fetching...</p>
-                    </div>
-                    <div id="weather-icon" class="text-ink shrink-0">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                    </div>
-                </div>
-
-                <div class="mt-2 pt-2 border-t border-dashed border-[#888888] grid grid-cols-3 gap-1 font-mono text-[9px] text-charcoal text-center">
-                    <div>
-                        <span class="block text-[8px]">WIND</span>
-                        <span id="weather-wind" class="text-ink font-medium tabular-nums">--</span>
-                    </div>
-                    <div class="border-x border-dashed border-[#888888]">
-                        <span class="block text-[8px]">PRECIP</span>
-                        <span id="weather-precip" class="text-ink font-medium tabular-nums">--</span>
-                    </div>
-                    <div>
-                        <span class="block text-[8px]">HUMID</span>
-                        <span id="weather-humidity" class="text-ink font-medium tabular-nums">--</span>
-                    </div>
-                </div>
-
-                <!-- 3-Day Forecast Expansion -->
-                <div class="mt-2.5 pt-2 border-t border-ink font-serif text-xs space-y-1">
-                    <div class="text-[10px] font-mono uppercase tracking-wider text-charcoal mb-1">3-Day Outlook</div>
-                    <div id="forecast-container" class="space-y-1 text-ink">
-                        <div class="flex justify-between"><span>Loading...</span><span>--° / --°</span></div>
-                    </div>
-                </div>
-            </section>
-
-        </aside>
-
-        <!-- RIGHT COLUMN (2/3): To-Do Display -->
-        <section class="sm:col-span-2 border-[1.5px] border-ink bg-paper p-4">
-            <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
-                <h1 class="font-serif text-xl font-medium tracking-tight text-ink">
-                    To-Do Display
-                </h1>
-                <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">
-                    0 items
-                </span>
-            </header>
-
-            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink max-h-[55vh] overflow-y-auto pr-1">
-                <!-- Dynamically rendered from Firebase -->
-            </ul>
-
-            <p id="empty-state" class="hidden py-6 text-center font-serif italic text-sm text-charcoal border-t border-b border-ink">
-                No active tasks. Add items from your PC control panel.
-            </p>
-        </section>
-
-    </main>
-
-    <!-- FULLSCREEN POMODORO BLOCKER MODAL -->
-    <div id="pomodoro-modal" class="fixed inset-0 bg-[#F4F3EF] z-50 p-6 flex flex-col hidden">
-        <div class="flex justify-between items-center border-b-[1.5px] border-ink pb-3 mb-6">
-            <span class="font-mono text-xs uppercase tracking-widest text-ink font-semibold">Fullscreen Focus Mode</span>
-            <button id="close-pomodoro" class="font-mono text-xs uppercase tracking-wider border-[1.5px] border-ink px-3 py-1 hover:bg-ink hover:text-paper">Exit Blocker</button>
+      <div class="flex items-center justify-between gap-2">
+        <div>
+          <span id="weather-temp" class="font-mono text-4xl font-semibold tabular-nums">--°C</span>
+          <p id="weather-condition" class="font-serif text-lg font-medium">Fetching...</p>
+          <p class="font-serif text-base text-charcoal">Feels like <span id="weather-feels" class="font-mono font-semibold text-ink tabular-nums">--°C</span></p>
         </div>
+        <div id="weather-icon" class="shrink-0"></div>
+      </div>
 
-        <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center max-w-4xl mx-auto w-full">
-            <!-- Left Side: Timer -->
-            <div class="border-[1.5px] border-ink p-8 text-center bg-paperDark/20">
-                <span class="font-mono text-xs uppercase tracking-widest text-charcoal block mb-2">Pomodoro Session</span>
-                <div id="pomo-timer" class="font-mono text-6xl sm:text-7xl font-semibold tracking-tighter text-ink tabular-nums my-4">
-                    25:00
-                </div>
-                <div class="flex justify-center gap-3 mt-4">
-                    <button id="pomo-toggle" class="font-mono text-xs uppercase tracking-wider border-[1.5px] border-ink px-5 py-2 hover:bg-ink hover:text-paper">Start</button>
-                    <button id="pomo-reset" class="font-mono text-xs uppercase tracking-wider border-[1.5px] border-ink px-5 py-2 hover:bg-ink hover:text-paper">Reset</button>
-                </div>
-            </div>
+      <div class="mt-3 pt-2 border-t border-dashed border-[#888888] grid grid-cols-3 gap-y-2 text-center font-mono">
+        <div><span class="block text-xs text-charcoal">WIND</span><span id="weather-wind" class="text-base font-semibold tabular-nums">--</span></div>
+        <div class="border-x border-dashed border-[#888888]"><span class="block text-xs text-charcoal">GUSTS</span><span id="weather-gust" class="text-base font-semibold tabular-nums">--</span></div>
+        <div><span class="block text-xs text-charcoal">HUMID</span><span id="weather-humidity" class="text-base font-semibold tabular-nums">--</span></div>
+        <div><span class="block text-xs text-charcoal">PRECIP</span><span id="weather-precip" class="text-base font-semibold tabular-nums">--</span></div>
+        <div class="border-x border-dashed border-[#888888]"><span class="block text-xs text-charcoal">UV</span><span id="weather-uv" class="text-base font-semibold tabular-nums">--</span></div>
+        <div><span class="block text-xs text-charcoal">CLOUD</span><span id="weather-cloud" class="text-base font-semibold tabular-nums">--</span></div>
+      </div>
 
-            <!-- Right Side: Todos Inside Blocker -->
-            <div class="border-[1.5px] border-ink p-6 bg-paper h-full max-h-[60vh] flex flex-col">
-                <h3 class="font-serif text-lg font-medium border-b border-ink pb-2 mb-3">Active Focus Tasks</h3>
-                <ul id="pomo-todo-list" class="divide-y divide-dashed divide-[#888888] overflow-y-auto flex-1 pr-1">
-                    <!-- Synced tasks -->
-                </ul>
-            </div>
+      <div class="mt-3 pt-2 border-t border-ink">
+        <div class="flex justify-between items-baseline mb-1.5">
+          <span class="lbl text-charcoal">Air Quality</span>
+          <span id="aq-label" class="font-serif text-lg font-medium">--</span>
         </div>
+        <div class="grid grid-cols-3 text-center font-mono">
+          <div><span class="block text-xs text-charcoal">NOW</span><span id="aq-now" class="text-base font-semibold tabular-nums">--</span></div>
+          <div class="border-x border-dashed border-[#888888]"><span class="block text-xs text-charcoal">AVG TODAY</span><span id="aq-avg" class="text-base font-semibold tabular-nums">--</span></div>
+          <div><span class="block text-xs text-charcoal">PM2.5</span><span id="aq-pm" class="text-base font-semibold tabular-nums">--</span></div>
+        </div>
+        <p class="font-serif italic text-sm text-charcoal mt-1">European AQI, 0 is best.</p>
+      </div>
+
+      <div class="mt-3 pt-2 border-t border-ink">
+        <div class="lbl text-charcoal mb-1.5">3-Day Outlook</div>
+        <div id="forecast-container" class="divide-y divide-dashed divide-[#888888]">
+          <div class="font-serif text-base py-1">Loading...</div>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <section class="sm:col-span-3 border-[1.5px] border-ink bg-paper p-4">
+    <header class="border-b-[1.5px] border-ink pb-2 mb-3 flex items-baseline justify-between">
+      <h1 class="font-serif text-2xl font-medium tracking-tight">To-Do Display</h1>
+      <span id="task-count" class="lbl text-charcoal">0 items</span>
+    </header>
+    <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink"></ul>
+    <p id="empty-state" class="hidden py-6 text-center font-serif italic text-lg text-charcoal border-t border-b border-ink">No active tasks. Add items from your PC control panel.</p>
+  </section>
+</main>
+
+<div id="focus-overlay" class="fixed inset-0 bg-[#F4F3EF] z-50 p-4 overflow-y-auto hidden">
+  <div class="flex justify-between items-center border-b-[1.5px] border-ink pb-3 mb-4">
+    <span class="lbl font-semibold">Focus Mode</span>
+    <button id="focus-exit" class="lbl border-[1.5px] border-ink px-3 py-2 active:bg-ink active:text-paper">Exit Blocker</button>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+    <div class="border-[1.5px] border-ink p-6 text-center bg-paperDark/20">
+      <span class="lbl text-charcoal block">Pomodoro Session</span>
+      <div id="pomo-timer" class="font-mono text-7xl font-semibold tracking-tighter tabular-nums my-3">25:00</div>
+      <p id="pomo-status" class="font-serif italic text-lg">Started from PC</p>
     </div>
+    <div class="border-[1.5px] border-ink p-4 bg-paper">
+      <h3 class="font-serif text-xl font-medium border-b border-ink pb-2 mb-2">Active Focus Tasks</h3>
+      <ul id="pomo-todo-list" class="divide-y divide-dashed divide-[#888888]"></ul>
+    </div>
+  </div>
+</div>
 
-    <!-- SCRIPTS -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const db = getDatabase(initializeApp({ databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/" }));
+const todosRef = ref(db, 'todos'), timerRef = ref(db, 'timer');
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-        const firebaseConfig = {
-            databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
-        };
+/* Clock */
+function clock() {
+  const n = new Date(), p = v => String(v).padStart(2, '0');
+  $('live-clock').textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+  $('live-date').textContent = `${n.toLocaleDateString('en-GB', { weekday: 'short' })}, ${n.getDate()} ${n.toLocaleDateString('en-GB', { month: 'short' })} ${n.getFullYear()}`;
+}
+clock(); setInterval(clock, 1000);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const todosRef = ref(db, 'todos');
+/* Fullscreen (hides the Brave address bar) */
+const fs = $('fs-btn');
+if (!document.documentElement.requestFullscreen) fs.classList.add('hidden');
+fs.addEventListener('click', () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}));
+document.addEventListener('fullscreenchange', () => fs.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen');
 
-        let todos = [];
+/* Weather */
+const wmo = c => c === 0 ? ['Clear', 'sun'] : c === 1 ? ['Mostly Clear', 'sun'] : c === 2 ? ['Partly Cloudy', 'cloud'] : c === 3 ? ['Overcast', 'cloud']
+  : (c === 45 || c === 48) ? ['Fog', 'cloud'] : c >= 95 ? ['Thunderstorm', 'rain'] : (c >= 71 && c <= 77) || c === 85 || c === 86 ? ['Snow', 'rain']
+  : c >= 51 ? [c <= 57 ? 'Drizzle' : c >= 80 ? 'Showers' : 'Rain', 'rain'] : ['Cloudy', 'cloud'];
+const icon = (t, s) => {
+  const cloud = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>';
+  const g = t === 'sun' ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>' : t === 'rain' ? cloud + '<path d="M8 21l-1 2M12 21l-1 2M16 21l-1 2"/>' : cloud;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">${g}</svg>`;
+};
+const aqBand = v => v == null ? '--' : v < 20 ? 'Good' : v < 40 ? 'Fair' : v < 60 ? 'Moderate' : v < 80 ? 'Poor' : v < 100 ? 'Very Poor' : 'Extremely Poor';
+const uvBand = v => v < 3 ? 'Low' : v < 6 ? 'Mod' : v < 8 ? 'High' : 'V.High';
+const r0 = v => v == null ? '--' : Math.round(v);
+const LAT = 'latitude=51.9022&longitude=-0.2026';
 
-        // 1. Live Clock & Date
-        const clockEl = document.getElementById('live-clock');
-        const dateEl = document.getElementById('live-date');
+async function fetchWeather() {
+  try {
+    const d = await (await fetch(`https://api.open-meteo.com/v1/forecast?${LAT}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&wind_speed_unit=kmh&timezone=Europe/London`)).json();
+    const c = d.current, [label, ic] = wmo(c.weather_code);
+    $('weather-temp').textContent = `${r0(c.temperature_2m)}°C`;
+    $('weather-feels').textContent = `${r0(c.apparent_temperature)}°C`;
+    $('weather-condition').textContent = label;
+    $('weather-icon').innerHTML = icon(ic, 56);
+    $('weather-wind').textContent = `${r0(c.wind_speed_10m)}km/h`;
+    $('weather-gust').textContent = `${r0(c.wind_gusts_10m)}km/h`;
+    $('weather-humidity').textContent = `${c.relative_humidity_2m}%`;
+    $('weather-precip').textContent = `${c.precipitation}mm`;
+    $('weather-uv').textContent = `${r0(c.uv_index)} ${uvBand(c.uv_index)}`;
+    $('weather-cloud').textContent = `${c.cloud_cover}%`;
+    $('forecast-container').innerHTML = [1, 2, 3].map(i => {
+      const [l, t] = wmo(d.daily.weather_code[i]), day = new Date(d.daily.time[i] + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
+      return `<div class="flex items-center gap-3 py-2"><span class="font-mono text-base font-semibold w-11">${day}</span><span class="shrink-0">${icon(t, 28)}</span>
+        <div class="flex-1 min-w-0"><div class="font-serif text-base font-medium leading-tight">${l}</div><div class="font-mono text-xs text-charcoal">RAIN ${d.daily.precipitation_probability_max[i] ?? '--'}%</div></div>
+        <span class="font-mono text-base tabular-nums">${r0(d.daily.temperature_2m_min[i])}° / ${r0(d.daily.temperature_2m_max[i])}°</span></div>`;
+    }).join('');
+  } catch (e) { $('weather-condition').textContent = 'Unavailable'; }
+  try {
+    const a = await (await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?${LAT}&current=european_aqi,pm2_5&hourly=european_aqi&timezone=Europe/London`)).json();
+    const today = a.current.time.slice(0, 10), vals = a.hourly.time.map((t, i) => t.startsWith(today) ? a.hourly.european_aqi[i] : null).filter(v => v != null);
+    const avg = vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : null;
+    $('aq-now').textContent = r0(a.current.european_aqi);
+    $('aq-avg').textContent = r0(avg);
+    $('aq-pm').textContent = a.current.pm2_5 == null ? '--' : `${r0(a.current.pm2_5)}µg`;
+    $('aq-label').textContent = aqBand(avg ?? a.current.european_aqi);
+  } catch (e) { $('aq-label').textContent = 'Unavailable'; }
+}
+fetchWeather(); setInterval(fetchWeather, 15 * 60 * 1000);
 
-        function updateClockAndDate() {
-            const now = new Date();
-            clockEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            dateEl.textContent = `${now.toLocaleDateString('en-GB', { weekday: 'short' })}, ${now.getDate()} ${now.toLocaleDateString('en-GB', { month: 'short' })} ${now.getFullYear()}`;
-        }
-        updateClockAndDate();
-        setInterval(updateClockAndDate, 1000);
+/* To-dos */
+let todos = [];
+const lists = [$('todo-list'), $('pomo-todo-list')];
+function renderTodos() {
+  const html = todos.map((t, i) => `<li class="py-3" data-index="${i}">
+    <div class="flex items-start gap-3"><input type="checkbox" class="eink-checkbox toggle-todo"><span class="font-serif text-xl leading-snug break-words">${esc(t.text)}</span></div>
+    ${t.subtasks.length ? `<ul class="ml-10 mt-2 space-y-2 border-l border-dashed border-[#888888] pl-3">${t.subtasks.map((s, j) => `<li class="flex items-center gap-2.5" data-index="${i}" data-sub-index="${j}"><input type="checkbox" class="eink-checkbox sub toggle-subtask"><span class="font-serif text-lg leading-snug break-words">${esc(s.text)}</span></li>`).join('')}</ul>` : ''}
+  </li>`).join('');
+  lists.forEach(l => l.innerHTML = html);
+  $('task-count').textContent = `${todos.length} items`;
+  $('todo-list').classList.toggle('hidden', !todos.length);
+  $('empty-state').classList.toggle('hidden', !!todos.length);
+}
+onValue(todosRef, s => {
+  const v = s.val();
+  todos = (Array.isArray(v) ? v : Object.values(v || {})).map(t => ({ text: t.text, subtasks: Array.isArray(t.subtasks) ? t.subtasks : Object.values(t.subtasks || {}) }));
+  renderTodos();
+});
+const save = () => set(todosRef, todos.map(t => ({ text: t.text, completed: false, subtasks: t.subtasks })));
+lists.forEach(l => l.addEventListener('change', e => {
+  const li = e.target.closest('li[data-index]'); if (!li) return;
+  const i = +li.dataset.index;
+  if (e.target.classList.contains('toggle-todo')) setTimeout(() => { todos.splice(i, 1); save(); }, 300);
+  else if (e.target.classList.contains('toggle-subtask')) setTimeout(() => { todos[i]?.subtasks.splice(+li.dataset.subIndex, 1); save(); }, 300);
+}));
 
-        // 2. Weather & 3-Day Forecast (Stevenage)
-        const tempEl = document.getElementById('weather-temp');
-        const conditionEl = document.getElementById('weather-condition');
-        const windEl = document.getElementById('weather-wind');
-        const precipEl = document.getElementById('weather-precip');
-        const humidityEl = document.getElementById('weather-humidity');
-        const iconEl = document.getElementById('weather-icon');
-        const forecastContainer = document.getElementById('forecast-container');
-
-        async function fetchWeather() {
-            try {
-                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.9022&longitude=-0.2026&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&wind_speed_unit=kmh&timezone=Europe/London');
-                const data = await res.json();
-                if (data && data.current) {
-                    tempEl.textContent = `${Math.round(data.current.temperature_2m)}°C`;
-                    windEl.textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
-                    precipEl.textContent = `${data.current.precipitation}mm`;
-                    humidityEl.textContent = `${data.current.relative_humidity_2m}%`;
-
-                    let code = data.current.weather_code;
-                    conditionEl.textContent = code === 0 ? 'Clear Sky' : code <= 2 ? 'Partly Cloudy' : code >= 51 ? 'Rain' : 'Overcast';
-                }
-                if (data && data.daily) {
-                    forecastContainer.innerHTML = '';
-                    for (let i = 1; i <= 3; i++) {
-                        const dateObj = new Date(data.daily.time[i]);
-                        const dayName = dateObj.toLocaleDateString('en-GB', { weekday: 'short' });
-                        const maxT = Math.round(data.daily.temperature_2m_max[i]);
-                        const minT = Math.round(data.daily.temperature_2m_min[i]);
-                        
-                        const row = document.createElement('div');
-                        row.className = 'flex justify-between items-center text-[11px]';
-                        row.innerHTML = `<span class="font-mono text-charcoal">${dayName}</span><span class="tabular-nums">${minT}°C / ${maxT}°C</span>`;
-                        forecastContainer.appendChild(row);
-                    }
-                }
-            } catch (e) {
-                conditionEl.textContent = 'Unavailable';
-            }
-        }
-        fetchWeather();
-        setInterval(fetchWeather, 15 * 60 * 1000);
-
-        // 3. To-Do Sync & Rendering
-        const todoList = document.getElementById('todo-list');
-        const pomoTodoList = document.getElementById('pomo-todo-list');
-        const emptyState = document.getElementById('empty-state');
-        const taskCountEl = document.getElementById('task-count');
-
-        function renderTodos() {
-            const htmlContent = todos.length === 0 ? '' : todos.map((todo, index) => {
-                let subtasksHTML = '';
-                if (todo.subtasks && todo.subtasks.length > 0) {
-                    subtasksHTML = '<ul class="ml-6 mt-1 space-y-1 border-l border-dashed border-[#888888] pl-2">';
-                    todo.subtasks.forEach((sub, subIdx) => {
-                        subtasksHTML += `
-                            <li class="flex items-center gap-2" data-index="${index}" data-sub-index="${subIdx}">
-                                <input type="checkbox" class="eink-checkbox toggle-subtask" ${sub.completed ? 'checked' : ''}>
-                                <span class="font-serif text-xs ${sub.completed ? 'line-through text-[#666666]' : 'text-ink'}">${sub.text}</span>
-                            </li>`;
-                    });
-                    subtasksHTML += '</ul>';
-                }
-
-                return `
-                    <li class="py-2" data-index="${index}">
-                        <div class="flex items-start gap-2.5">
-                            <input type="checkbox" class="eink-checkbox toggle-todo" ${todo.completed ? 'checked' : ''}>
-                            <span class="font-serif text-sm leading-snug break-words ${todo.completed ? 'line-through text-[#666666]' : 'text-ink'}">${todo.text}</span>
-                        </div>
-                        ${subtasksHTML}
-                    </li>`;
-            }).join('');
-
-            todoList.innerHTML = htmlContent;
-            pomoTodoList.innerHTML = htmlContent;
-            taskCountEl.textContent = `${todos.length} items`;
-
-            if (todos.length === 0) {
-                todoList.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
-                todoList.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-            }
-        }
-
-        onValue(todosRef, (snapshot) => {
-            todos = snapshot.val() || [];
-            renderTodos();
-        });
-
-        // Handle checkbox updates / auto-delete
-        function handleCheck(e) {
-            const li = e.target.closest('li[data-index]');
-            if (!li) return;
-            const index = parseInt(li.dataset.index);
-
-            if (e.target.classList.contains('toggle-todo')) {
-                setTimeout(() => {
-                    todos.splice(index, 1);
-                    set(todosRef, todos);
-                }, 300);
-            } else if (e.target.classList.contains('toggle-subtask')) {
-                const subIndex = parseInt(li.dataset.subIndex);
-                setTimeout(() => {
-                    if (todos[index] && todos[index].subtasks) {
-                        todos[index].subtasks.splice(subIndex, 1);
-                        set(todosRef, todos);
-                    }
-                }, 300);
-            }
-        }
-
-        todoList.addEventListener('change', handleCheck);
-        pomoTodoList.addEventListener('change', handleCheck);
-
-        // 4. Pomodoro Blocker Logic
-        const modal = document.getElementById('pomodoro-modal');
-        document.getElementById('open-pomodoro').addEventListener('click', () => modal.classList.remove('hidden'));
-        document.getElementById('close-pomodoro').addEventListener('click', () => modal.classList.add('hidden'));
-
-        let pomoTime = 25 * 60;
-        let pomoInterval = null;
-        let isRunning = false;
-        const timerDisplay = document.getElementById('pomo-timer');
-        const toggleBtn = document.getElementById('pomo-toggle');
-
-        function updateTimerDisplay() {
-            const mins = Math.floor(pomoTime / 60);
-            const secs = pomoTime % 60;
-            timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-
-        toggleBtn.addEventListener('click', () => {
-            if (isRunning) {
-                clearInterval(pomoInterval);
-                isRunning = false;
-                toggleBtn.textContent = 'Start';
-            } else {
-                isRunning = true;
-                toggleBtn.textContent = 'Pause';
-                pomoInterval = setInterval(() => {
-                    if (pomoTime > 0) {
-                        pomoTime--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(pomoInterval);
-                        alert('Pomodoro session completed!');
-                        isRunning = false;
-                        toggleBtn.textContent = 'Start';
-                    }
-                }, 1000);
-            }
-        });
-
-        document.getElementById('pomo-reset').addEventListener('click', () => {
-            clearInterval(pomoInterval);
-            isRunning = false;
-            pomoTime = 25 * 60;
-            updateTimerDisplay();
-            toggleBtn.textContent = 'Start';
-        });
-    </script>
+/* Focus timer, started from the PC */
+let offset = 0, timer = null, dismissed = null, vibrated = null;
+onValue(ref(db, '.info/serverTimeOffset'), s => offset = s.val() || 0);
+onValue(timerRef, s => { timer = s.val(); if (timer && timer.startedAt !== dismissed) dismissed = dismissed; syncTimer(); });
+const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+function syncTimer() {
+  const on = timer && (timer.status === 'running' || timer.status === 'paused');
+  const chip = $('focus-chip'), ov = $('focus-overlay');
+  if (!on) { ov.classList.add('hidden'); chip.classList.add('hidden'); return; }
+  const rem = timer.status === 'running' ? Math.max(0, Math.ceil((timer.endsAt - (Date.now() + offset)) / 1000)) : timer.remaining;
+  const done = timer.status === 'running' && rem === 0, hide = dismissed === timer.startedAt;
+  ov.classList.toggle('hidden', hide);
+  chip.classList.toggle('hidden', !hide);
+  chip.textContent = `Focus ${fmt(rem)}`;
+  $('pomo-timer').textContent = fmt(rem);
+  $('pomo-status').textContent = done ? 'Session complete' : timer.status === 'paused' ? 'Paused' : 'Running';
+  if (done && vibrated !== timer.startedAt) { vibrated = timer.startedAt; try { navigator.vibrate([300, 150, 300]); } catch (e) {} }
+}
+setInterval(syncTimer, 250);
+$('focus-exit').addEventListener('click', () => { dismissed = timer && timer.startedAt; syncTimer(); });
+$('focus-chip').addEventListener('click', () => { dismissed = null; syncTimer(); });
+</script>
 </body>
 </html>
