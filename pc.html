@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Sheet — PC Control</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Daily Sheet — PC Control Panel</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
@@ -38,134 +39,86 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .eink-checkbox {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+        .eink-input {
+            background: transparent;
             border: 1.5px solid #111111;
-            border-radius: 0px;
-            background-color: transparent;
-            display: inline-grid;
-            place-content: center;
+            padding: 10px 14px;
+            font-family: 'Newsreader', serif;
+            font-size: 1.1rem;
+            color: #111111;
+            outline: none;
+        }
+
+        .eink-input:focus {
+            background-color: #EAE8E1;
+        }
+
+        .eink-btn {
+            border: 1.5px solid #111111;
+            background: transparent;
+            color: #111111;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            padding: 10px 20px;
             cursor: pointer;
-            flex-shrink: 0;
-            margin-top: 3px;
         }
 
-        .eink-checkbox:checked {
-            background-color: #111111;
-            border-color: #111111;
-        }
-
-        .eink-checkbox::before {
-            content: "";
-            width: 11px;
-            height: 11px;
-            transform: scale(0);
-            background-color: #F4F3EF;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-
-        .eink-checkbox:checked::before {
-            transform: scale(1);
-        }
-
-        input:focus-visible,
-        button:focus-visible {
-            outline: 1.5px solid #111111;
-            outline-offset: 2px;
-        }
-
-        .tabular-nums {
-            font-variant-numeric: tabular-nums;
+        .eink-btn:hover {
+            background: #111111;
+            color: #F4F3EF;
         }
     </style>
 </head>
-<body class="min-h-screen p-6 md:p-12 selection:bg-ink selection:text-paper">
+<body class="min-h-screen p-6 sm:p-10 selection:bg-ink selection:text-paper">
 
-    <main class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+    <main class="max-w-2xl mx-auto space-y-6">
 
-        <!-- LEFT COLUMN (1/3): Status & Controls -->
-        <aside class="md:col-span-1 space-y-6">
-            
-            <section class="border-[1.5px] border-ink bg-paper p-5">
-                <div class="flex items-center justify-between border-b border-ink pb-2 mb-3">
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink font-semibold">PC Control</span>
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-charcoal">Admin</span>
+        <!-- HEADER -->
+        <header class="border-[1.5px] border-ink bg-paper p-6 text-center">
+            <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-charcoal block mb-1">
+                Command Center
+            </span>
+            <h1 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-ink">
+                PC Control Panel
+            </h1>
+        </header>
+
+        <!-- ADD TASK FORM -->
+        <section class="border-[1.5px] border-ink bg-paper p-6">
+            <h2 class="font-serif text-xl font-medium mb-4 text-ink">Add New Task & Sub-tasks</h2>
+            <form id="add-task-form" class="space-y-4">
+                <div>
+                    <label for="task-input" class="block font-mono text-xs uppercase tracking-[0.12em] text-charcoal mb-1">Main Task</label>
+                    <input type="text" id="task-input" placeholder="Enter main task..." required class="w-full eink-input" autocomplete="off">
                 </div>
-                <div id="live-clock" class="font-mono text-2xl font-semibold text-ink tabular-nums">
-                    00:00:00
+                <div>
+                    <label for="subtask-input" class="block font-mono text-xs uppercase tracking-[0.12em] text-charcoal mb-1">Sub-tasks (comma separated, optional)</label>
+                    <input type="text" id="subtask-input" placeholder="e.g. Check email, Call office" class="w-full eink-input" autocomplete="off">
                 </div>
-                <p id="live-date" class="font-serif text-sm text-charcoal mt-1">
-                    Loading date...
-                </p>
-            </section>
+                <button type="submit" class="eink-btn w-full">Add to Daily Sheet</button>
+            </form>
+        </section>
 
-            <!-- Sheet Actions -->
-            <section class="border-[1.5px] border-ink bg-paper p-5 space-y-3">
-                <div class="border-b border-ink pb-2 mb-3">
-                    <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink font-semibold">Sheet Actions</span>
-                </div>
-                <button 
-                    id="clear-all-btn" 
-                    type="button" 
-                    class="w-full border-[1.5px] border-ink bg-transparent text-ink hover:bg-ink hover:text-paper font-mono text-xs uppercase tracking-[0.12em] py-2.5 px-4 cursor-pointer text-left flex justify-between items-center"
-                >
-                    <span>Clear Entire Sheet</span>
-                    <span>&times;</span>
-                </button>
-                <p class="font-serif text-xs text-charcoal italic pt-1">
-                    Connected live via Firebase Realtime Database. Changes sync instantly across your PC and phone display.
-                </p>
-            </section>
-
-        </aside>
-
-        <!-- RIGHT COLUMN (2/3): Main Task & Sub-Task Editor -->
-        <section class="md:col-span-2 border-[1.5px] border-ink bg-paper p-6 sm:p-8">
-            
-            <header class="border-b-[1.5px] border-ink pb-3 mb-6 flex items-baseline justify-between">
-                <h1 class="font-serif text-3xl font-medium tracking-tight text-ink">
-                    Manage Tasks
-                </h1>
-                <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">
-                    0 active
-                </span>
+        <!-- CURRENT TASKS MANAGEMENT -->
+        <section class="border-[1.5px] border-ink bg-paper p-6">
+            <header class="border-b-[1.5px] border-ink pb-3 mb-4 flex items-baseline justify-between">
+                <h2 class="font-serif text-2xl font-medium text-ink">Manage Active Tasks</h2>
+                <span id="task-count" class="font-mono text-xs uppercase tracking-[0.12em] text-charcoal">0 items</span>
             </header>
 
-            <!-- Add Main Task Form -->
-            <form id="todo-form" class="flex flex-col sm:flex-row gap-3 mb-6">
-                <label for="todo-input" class="sr-only">New main task</label>
-                <input 
-                    type="text" 
-                    id="todo-input" 
-                    placeholder="Enter a new main task..." 
-                    autocomplete="off"
-                    class="flex-1 bg-transparent border-[1.5px] border-ink px-3.5 py-2.5 font-serif text-base text-ink placeholder-[#777777] focus:bg-paperDark/50 focus:outline-none"
-                >
-                <button 
-                    type="submit" 
-                    class="border-[1.5px] border-ink bg-ink text-paper hover:bg-transparent hover:text-ink font-mono text-xs uppercase tracking-[0.14em] px-6 py-3 cursor-pointer"
-                >
-                    Add Task
-                </button>
-            </form>
-
-            <!-- Editable Task List -->
-            <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink">
-                <!-- Tasks & Subtasks rendered dynamically -->
+            <ul id="pc-todo-list" class="space-y-4">
+                <!-- Populated dynamically -->
             </ul>
 
-            <p id="empty-state" class="hidden py-10 text-center font-serif italic text-base text-charcoal border-t border-b border-ink">
-                Your sheet is currently clear. Add a task above.
+            <p id="empty-state" class="hidden py-8 text-center font-serif italic text-base text-charcoal border-t border-b border-ink">
+                No active tasks recorded. Use the form above to add some.
             </p>
-
         </section>
 
     </main>
 
-    <!-- Firebase Real-Time Sync Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -178,175 +131,93 @@
         const db = getDatabase(app);
         const todosRef = ref(db, 'todos');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Clock & Date
-            const clockEl = document.getElementById('live-clock');
-            const dateEl = document.getElementById('live-date');
+        let todos = [];
 
-            function updateClock() {
-                const now = new Date();
-                clockEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-                dateEl.textContent = `${now.toLocaleDateString('en-GB', { weekday: 'long' })}, ${now.getDate()} ${now.toLocaleDateString('en-GB', { month: 'short' })} ${now.getFullYear()}`;
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
+        const taskForm = document.getElementById('add-task-form');
+        const taskInput = document.getElementById('task-input');
+        const subtaskInput = document.getElementById('subtask-input');
+        const pcTodoList = document.getElementById('pc-todo-list');
+        const emptyState = document.getElementById('empty-state');
+        const taskCountEl = document.getElementById('task-count');
 
-            const todoForm = document.getElementById('todo-form');
-            const todoInput = document.getElementById('todo-input');
-            const todoList = document.getElementById('todo-list');
-            const emptyState = document.getElementById('empty-state');
-            const taskCountEl = document.getElementById('task-count');
-            const clearAllBtn = document.getElementById('clear-all-btn');
+        // Listen for live database updates
+        onValue(todosRef, (snapshot) => {
+            const data = snapshot.val();
+            todos = data ? data : [];
+            renderPCList();
+        });
 
-            let todos = [];
+        function renderPCList() {
+            pcTodoList.innerHTML = '';
+            taskCountEl.textContent = `${todos.length} items`;
 
-            function escapeHTML(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
+            if (todos.length === 0) {
+                pcTodoList.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
             }
 
-            function renderTodos() {
-                todoList.innerHTML = '';
-                taskCountEl.textContent = `${todos.length} ${todos.length === 1 ? 'task' : 'tasks'}`;
+            pcTodoList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
 
-                if (todos.length === 0) {
-                    todoList.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
-                    return;
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = 'border-[1.5px] border-ink p-4 bg-paperDark/20 flex flex-col gap-2';
+
+                let subtasksHTML = '';
+                if (todo.subtasks && todo.subtasks.length > 0) {
+                    subtasksHTML = '<ul class="ml-4 space-y-1 border-l border-dashed border-[#888888] pl-3 mt-1">';
+                    todo.subtasks.forEach(sub => {
+                        subtasksHTML += `<li class="font-serif text-sm text-charcoal">• ${sub.text}</li>`;
+                    });
+                    subtasksHTML += '</ul>';
                 }
 
-                todoList.classList.remove('hidden');
-                emptyState.classList.add('hidden');
+                li.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-serif text-lg font-medium text-ink">${todo.text}</span>
+                        <button data-index="${index}" class="delete-btn font-mono text-[10px] uppercase tracking-wider border border-ink px-2.5 py-1 hover:bg-ink hover:text-paper">Delete</button>
+                    </div>
+                    ${subtasksHTML}
+                `;
+                pcTodoList.appendChild(li);
+            });
+        }
 
-                todos.forEach(todo => {
-                    const li = document.createElement('li');
-                    li.className = 'py-4';
-                    li.dataset.id = todo.id;
+        // Add task event
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = taskInput.value.trim();
+            if (!text) return;
 
-                    let subtasksHTML = '<ul class="ml-7 mt-2.5 space-y-2 border-l border-dashed border-[#888888] pl-3">';
-                    if (todo.subtasks && todo.subtasks.length > 0) {
-                        todo.subtasks.forEach(sub => {
-                            subtasksHTML += `
-                                <li class="flex items-center justify-between gap-2 text-sm" data-sub-id="${sub.id}">
-                                    <span class="font-serif text-ink">${escapeHTML(sub.text)}</span>
-                                    <button type="button" class="remove-sub-btn font-mono text-[10px] uppercase tracking-wider text-charcoal hover:text-ink underline cursor-pointer">
-                                        Remove
-                                    </button>
-                                </li>
-                            `;
-                        });
-                    }
-                    subtasksHTML += `
-                        <li class="pt-1">
-                            <form class="subtask-form flex gap-2">
-                                <input 
-                                    type="text" 
-                                    placeholder="+ Add sub-task..." 
-                                    class="subtask-input flex-1 bg-transparent border-b border-[#888888] focus:border-ink py-1 font-serif text-sm text-ink placeholder-[#777777] focus:outline-none"
-                                >
-                                <button type="submit" class="font-mono text-[10px] uppercase tracking-wider border border-ink px-2.5 py-1 hover:bg-ink hover:text-paper cursor-pointer">
-                                    Add
-                                </button>
-                            </form>
-                        </li>
-                    </ul>`;
-
-                    li.innerHTML = `
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex items-start gap-3 flex-1 min-w-0">
-                                <input type="checkbox" class="eink-checkbox complete-todo-btn" title="Complete & Remove">
-                                <span class="font-serif text-lg leading-snug text-ink break-words">
-                                    ${escapeHTML(todo.text)}
-                                </span>
-                            </div>
-                            <button 
-                                type="button" 
-                                class="delete-todo-btn font-mono text-xs uppercase tracking-[0.1em] text-charcoal hover:text-ink underline cursor-pointer shrink-0 pt-1"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                        ${subtasksHTML}
-                    `;
-
-                    todoList.appendChild(li);
-                });
+            const rawSubtasks = subtaskInput.value.trim();
+            let subtasks = [];
+            if (rawSubtasks) {
+                subtasks = rawSubtasks.split(',').map(s => ({
+                    text: s.trim(),
+                    completed: false
+                })).filter(s => s.text.length > 0);
             }
 
-            // Listen for live database updates
-            onValue(todosRef, (snapshot) => {
-                const data = snapshot.val();
-                todos = data ? data : [];
-                renderTodos();
+            todos.push({
+                text: text,
+                completed: false,
+                subtasks: subtasks
             });
 
-            // Add Main Task
-            todoForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const text = todoInput.value.trim();
-                if (!text) return;
+            set(todosRef, todos);
 
-                todos.unshift({
-                    id: Date.now().toString(),
-                    text,
-                    completed: false,
-                    subtasks: []
-                });
+            taskInput.value = '';
+            subtaskInput.value = '';
+        });
 
-                todoInput.value = '';
+        // Delete task event
+        pcTodoList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                todos.splice(index, 1);
                 set(todosRef, todos);
-            });
-
-            // Handle Sub-task additions
-            todoList.addEventListener('submit', (e) => {
-                if (e.target.classList.contains('subtask-form')) {
-                    e.preventDefault();
-                    const li = e.target.closest('li[data-id]');
-                    const input = e.target.querySelector('.subtask-input');
-                    const subText = input.value.trim();
-                    if (!li || !subText) return;
-
-                    const todo = todos.find(t => t.id === li.dataset.id);
-                    if (todo) {
-                        if (!todo.subtasks) todo.subtasks = [];
-                        todo.subtasks.push({
-                            id: `${todo.id}-${Date.now()}`,
-                            text: subText,
-                            completed: false
-                        });
-                        set(todosRef, todos);
-                    }
-                }
-            });
-
-            // Handle Delete Task, Complete Task, or Remove Sub-task
-            todoList.addEventListener('click', (e) => {
-                const li = e.target.closest('li[data-id]');
-                if (!li) return;
-                const todoId = li.dataset.id;
-
-                if (e.target.classList.contains('delete-todo-btn') || e.target.classList.contains('complete-todo-btn')) {
-                    todos = todos.filter(t => t.id !== todoId);
-                    set(todosRef, todos);
-                } else if (e.target.classList.contains('remove-sub-btn')) {
-                    const subLi = e.target.closest('li[data-sub-id]');
-                    const subId = subLi.dataset.subId;
-                    const todo = todos.find(t => t.id === todoId);
-                    if (todo && todo.subtasks) {
-                        todo.subtasks = todo.subtasks.filter(s => s.id !== subId);
-                        set(todosRef, todos);
-                    }
-                }
-            });
-
-            // Clear Entire Sheet
-            clearAllBtn.addEventListener('click', () => {
-                if (todos.length > 0 && confirm('Clear all tasks from the sheet?')) {
-                    todos = [];
-                    set(todosRef, todos);
-                }
-            });
+            }
         });
     </script>
 </body>
