@@ -23,6 +23,7 @@ body{background-color:#F4F3EF;color:#111;background-image:url("data:image/svg+xm
 .sm-btn:hover:not(:disabled){background:#111;color:#F4F3EF}
 .sm-btn:disabled{opacity:.25;cursor:default}
 .tabular-nums{font-variant-numeric:tabular-nums}
+.eink-btn.on{background:#111!important;color:#F4F3EF!important}
 </style>
 </head>
 <body class="min-h-screen p-4 sm:p-6 selection:bg-ink selection:text-paper">
@@ -32,7 +33,10 @@ body{background-color:#F4F3EF;color:#111;background-image:url("data:image/svg+xm
     <span class="font-mono text-[10px] uppercase tracking-[0.16em] text-charcoal block">E-Paper Workspace</span>
     <h1 class="font-serif text-2xl font-medium tracking-tight">PC Control Panel</h1>
   </div>
-  <button id="open-pomodoro" class="eink-btn tabular-nums">Start Focus Timer</button>
+  <div class="flex gap-2">
+    <button id="fs-toggle" class="eink-btn">Phone Fullscreen: Off</button>
+    <button id="open-pomodoro" class="eink-btn tabular-nums">Start Focus Timer</button>
+  </div>
 </header>
 
 <main class="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
@@ -187,6 +191,11 @@ $('add-task-form').addEventListener('submit', e => {
   const inp = $('task-input'), v = inp.value.trim(); if (!v) return;
   todos.push({ text: v, completed: false, subtasks: [] }); save(); inp.value = ''; render(); inp.focus();
 });
+
+/* ---------- Phone fullscreen toggle ---------- */
+const dispRef = ref(db, 'display'); let fsOn = false;
+onValue(dispRef, s => { fsOn = !!(s.val() && s.val().fullscreen); $('fs-toggle').textContent = `Phone Fullscreen: ${fsOn ? 'On' : 'Off'}`; $('fs-toggle').classList.toggle('on', fsOn); });
+$('fs-toggle').addEventListener('click', () => set(dispRef, { fullscreen: !fsOn }));
 
 /* ---------- Focus timer (synced to phone via Firebase) ---------- */
 const DUR = 25 * 60;
