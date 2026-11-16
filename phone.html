@@ -1,283 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="shared.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="mobile-web-app-capable" content="yes">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light">
-<link rel="manifest" href="manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Daily Sheet — Landscape Mobile View</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
-<script>
-tailwind.config={theme:{extend:{fontFamily:{serif:['Newsreader','Georgia','serif'],mono:['JetBrains Mono','monospace']},colors:{paper:'#F4F3EF',paperDark:'#EAE8E1',ink:'#111111',charcoal:'#3A3A3A'}}}}
-</script>
-<style>
-html{-webkit-text-size-adjust:100%;color-scheme:light only;background:#F4F3EF}
-body{background-color:#F4F3EF;color:#111;padding:.75rem;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");-webkit-font-smoothing:antialiased}
-.app{display:grid;grid-template-columns:1fr;gap:.75rem;max-width:64rem;margin:0 auto}
-.col{display:flex;flex-direction:column;gap:.75rem;min-height:0}
-.todos{order:-1;min-height:0;display:flex;flex-direction:column}
-/* Landscape: everything scales with screen height and fits without scrolling */
-@media (orientation:landscape){
-  html{font-size:clamp(11px,3.9dvh,18px)}
-  body{height:100dvh;overflow:hidden;padding:.5rem}
-  .app{height:100%;max-width:none;grid-template-columns:1fr 1fr 1.25fr;gap:.5rem}
-  .col{gap:.5rem}
-  .todos{order:0}
-  #todo-list{overflow-y:auto;flex:1;min-height:0}
-}
-.box{border:1.5px solid #111;background:#F4F3EF;padding:.6rem .7rem}
-.lbl{font-family:'JetBrains Mono',monospace;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase}
-.cell span:first-child{display:block;font-size:.75rem;color:#3A3A3A}
-.cell span:last-child{font-size:1rem;font-weight:600}
-.cell{text-align:center;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
-.eink-checkbox{appearance:none;-webkit-appearance:none;width:1.9rem;height:1.9rem;border:1.5px solid #111;border-radius:0;background:transparent;display:inline-grid;place-content:center;cursor:pointer;flex-shrink:0}
-.eink-checkbox.sub{width:1.6rem;height:1.6rem}
-.eink-checkbox:checked{background:#111}
-.eink-checkbox::before{content:"";width:60%;height:60%;transform:scale(0);background:#F4F3EF;clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%)}
-.eink-checkbox:checked::before{transform:scale(1)}
-.tabular-nums{font-variant-numeric:tabular-nums}
+  <title>Daily Sheet — Landscape Mobile View</title>
 
-  @media (orientation: landscape) {
-  /* Make the weather panel more compact */
-  body.phone-page .app > .col:first-child > section:last-child {
-    flex: 0 0 auto;
-    padding: .4rem .5rem;
-  }
+  <!-- Shared styles and app manifest. -->
+  <link rel="stylesheet" href="shared.css">
+  <link rel="manifest" href="manifest.json">
 
-  body.phone-page #weather-temp {
-    font-size: 1.8rem;
-  }
+  <!-- Tailwind CSS and the fonts used by the page. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap"
+    rel="stylesheet"
+  >
 
-  body.phone-page #weather-condition {
-    font-size: 1rem;
-  }
+  <!-- Add the project's custom fonts and colours to Tailwind. -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ["Newsreader", "Georgia", "serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          },
+          colors: {
+            paper: "#F4F3EF",
+            paperDark: "#EAE8E1",
+            ink: "#111111",
+            charcoal: "#3A3A3A"
+          }
+        }
+      }
+    };
+  </script>
 
-  body.phone-page #weather-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
+  <style>
+    /* Set the page's base colours and prevent automatic text resizing. */
+    html {
+      background: #F4F3EF;
+      color-scheme: light only;
+      -webkit-text-size-adjust: 100%;
+    }
 
-  body.phone-page .cell span:last-child {
-    font-size: .85rem;
-  }
+    body {
+      padding: .75rem;
+      background-color: #F4F3EF;
+      color: #111111;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+      -webkit-font-smoothing: antialiased;
+    }
 
-  /* Reduce the height used by Today's Scribble */
-  body.phone-page .scribble-preview-box {
-    flex: 0 0 auto;
-    min-height: 0;
-    padding: .4rem .5rem;
-  }
+    /* Main page layout; on portrait screens, sections stack vertically. */
+    .app {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .75rem;
+      max-width: 64rem;
+      margin: 0 auto;
+    }
 
-  body.phone-page .scribble-preview-content {
-    flex: 0 0 70px;
-    min-height: 0;
-  }
+    /* Stack the sections within each column. */
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      min-height: 0;
+    }
 
-  body.phone-page .scribble-preview-content img {
-    min-height: 0;
-  }
+    /* Task list panel. */
+    .todos {
+      order: -1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
 
-  body.phone-page .scribble-preview-content p {
-    padding: .25rem;
-    font-size: .8rem;
-  }
-}
+    /* Landscape layout: use three columns and fit the screen height. */
+    @media (orientation: landscape) {
+      html {
+        font-size: clamp(11px, 3.9dvh, 18px);
+      }
 
-</style>
+      body {
+        height: 100dvh;
+        overflow: hidden;
+        padding: .5rem;
+      }
+
+      .app {
+        height: 100%;
+        max-width: none;
+        grid-template-columns: 1fr 1fr 1.25fr;
+        gap: .5rem;
+      }
+
+      .col {
+        gap: .5rem;
+      }
+
+      .todos {
+        order: 0;
+      }
+
+      #todo-list {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      /* Reduce the gap between the panels and the Days Until bar. */
+      body.phone-page .app {
+        row-gap: 0;
+      }
+
+      /* Make the weather panel shorter. */
+      body.phone-page .app > .col:first-child > section:last-child {
+        flex: 0 0 auto;
+        padding: .4rem .5rem;
+      }
+
+      body.phone-page #weather-temp {
+        font-size: 1.8rem;
+      }
+
+      body.phone-page #weather-condition {
+        font-size: 1rem;
+      }
+
+      body.phone-page #weather-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
+      body.phone-page .cell span:last-child {
+        font-size: .85rem;
+      }
+
+      /* Make Today's Scribble preview use less vertical space. */
+      body.phone-page .scribble-preview-box {
+        flex: 0 0 auto;
+        min-height: 0;
+        padding: .4rem .5rem;
+      }
+
+      body.phone-page .scribble-preview-content {
+        flex: 0 0 70px;
+        min-height: 0;
+      }
+
+      body.phone-page .scribble-preview-content img {
+        min-height: 0;
+      }
+
+      body.phone-page .scribble-preview-content p {
+        padding: .25rem;
+        font-size: .8rem;
+      }
+    }
+
+    /* Shared panel and label styling. */
+    .box {
+      border: 1.5px solid #111111;
+      padding: .6rem .7rem;
+      background: #F4F3EF;
+    }
+
+    .lbl {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .85rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    /* Weather measurement labels and values. */
+    .cell {
+      text-align: center;
+      font-family: "JetBrains Mono", monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cell span:first-child {
+      display: block;
+      color: #3A3A3A;
+      font-size: .75rem;
+    }
+
+    .cell span:last-child {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* Custom square checkboxes used for tasks. */
+    .eink-checkbox {
+      display: inline-grid;
+      flex-shrink: 0;
+      width: 1.9rem;
+      height: 1.9rem;
+      place-content: center;
+      border: 1.5px solid #111111;
+      border-radius: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .eink-checkbox.sub {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+
+    .eink-checkbox:checked {
+      background: #111111;
+    }
+
+    .eink-checkbox::before {
+      width: 60%;
+      height: 60%;
+      transform: scale(0);
+      background: #F4F3EF;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+      content: "";
+    }
+
+    .eink-checkbox:checked::before {
+      transform: scale(1);
+    }
+
+    /* Keep numbers aligned as their values change. */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
 </head>
 
-<script type="module" src="shared.js"></script>
-
 <body class="phone-page selection:bg-ink selection:text-paper">
-
-<main class="app">
-  <div class="col">
-    <section class="box text-center">
-      <div id="live-clock" class="font-mono text-4xl font-semibold tracking-tight leading-none tabular-nums">00:00:00</div>
-      <p id="live-date" class="font-serif text-lg font-medium leading-tight mt-1.5 pt-1.5 border-t border-dashed border-[#888888]">Loading date...</p>
-    </section>
-
-    <section class="box">
-      <div class="flex justify-between border-b border-ink pb-1 mb-2"><span class="lbl font-semibold">Stevenage, UK</span><span class="lbl text-charcoal">Live</span></div>
-      <div class="flex items-center justify-between gap-2">
-        <div class="leading-tight">
-          <span id="weather-temp" class="font-mono text-4xl font-semibold tabular-nums">--°C</span>
-          <p id="weather-condition" class="font-serif text-lg font-medium">Fetching...</p>
-          <p class="font-serif text-base text-charcoal">Feels like <span id="weather-feels" class="font-mono font-semibold text-ink tabular-nums">--°C</span></p>
+  <main class="app">
+    <!-- Clock and current weather column. -->
+    <div class="col">
+      <section class="box text-center">
+        <div
+          id="live-clock"
+          class="font-mono text-4xl font-semibold tracking-tight leading-none tabular-nums"
+        >
+          00:00:00
         </div>
-        <div id="weather-icon" class="w-[3.5rem] h-[3.5rem] shrink-0"></div>
-      </div>
-      <div class="mt-2 pt-2 border-t border-dashed border-[#888888] grid grid-cols-3 gap-y-1.5">
-        <div class="cell"><span>WIND</span><span id="weather-wind">--</span></div>
-        <div class="cell border-x border-dashed border-[#888888]"><span>GUSTS</span><span id="weather-gust">--</span></div>
-        <div class="cell"><span>HUMID</span><span id="weather-humidity">--</span></div>
-        <div class="cell"><span>PRECIP</span><span id="weather-precip">--</span></div>
-        <div class="cell border-x border-dashed border-[#888888]"><span>UV</span><span id="weather-uv">--</span></div>
-        <div class="cell"><span>CLOUD</span><span id="weather-cloud">--</span></div>
-      </div>
-    </section>
-  </div>
+        <p
+          id="live-date"
+          class="mt-1.5 border-t border-dashed border-[#888888] pt-1.5 font-serif text-lg font-medium leading-tight"
+        >
+          Loading date...
+        </p>
+      </section>
 
-  <div class="col">
-    <section class="box">
-      <div class="lbl font-semibold border-b border-ink pb-1 mb-1">3-Day Outlook</div>
-      <div id="forecast-container" class="divide-y divide-dashed divide-[#888888]"><div class="font-serif text-base py-1">Loading...</div></div>
-    </section>
-  </div>
+      <!-- Current conditions and weather measurements. -->
+      <section class="box">
+        <div class="mb-2 flex justify-between border-b border-ink pb-1">
+          <span class="lbl font-semibold">Stevenage, UK</span>
+          <span class="lbl text-charcoal">Live</span>
+        </div>
 
-  <section class="box todos">
-    <header class="border-b-[1.5px] border-ink pb-1.5 mb-2 flex items-baseline justify-between gap-2">
-      <h1 class="font-serif text-2xl font-medium tracking-tight">To-Do Display</h1>
-      <div class="flex items-baseline gap-2">
-        <button id="focus-chip" class="lbl bg-ink text-paper px-2 py-1 hidden tabular-nums"></button>
-        <span id="task-count" class="lbl text-charcoal">0 items</span>
-      </div>
-    </header>
-    <ul id="todo-list" class="divide-y divide-dashed divide-[#888888] border-t border-b border-ink"></ul>
-    <p id="empty-state" class="hidden py-6 text-center font-serif italic text-lg text-charcoal border-t border-b border-ink">No active tasks. Add items from your PC control panel.</p>
-  </section>
-</main>
+        <div class="flex items-center justify-between gap-2">
+          <div class="leading-tight">
+            <span
+              id="weather-temp"
+              class="font-mono text-4xl font-semibold tabular-nums"
+            >
+              --°C
+            </span>
+            <p id="weather-condition" class="font-serif text-lg font-medium">
+              Fetching...
+            </p>
+            <p class="font-serif text-base text-charcoal">
+              Feels like
+              <span
+                id="weather-feels"
+                class="font-mono font-semibold text-ink tabular-nums"
+              >
+                --°C
+              </span>
+            </p>
+          </div>
+          <div id="weather-icon" class="h-[3.5rem] w-[3.5rem] shrink-0"></div>
+        </div>
 
-<div id="fs-hint" class="lbl fixed bottom-2 left-1/2 -translate-x-1/2 bg-ink text-paper px-3 py-2 z-40 hidden">Tap anywhere for fullscreen</div>
-
-<div id="focus-overlay" class="fixed inset-0 bg-[#F4F3EF] z-50 p-4 overflow-y-auto hidden">
-  <div class="flex justify-between items-center border-b-[1.5px] border-ink pb-2 mb-3">
-    <span class="lbl font-semibold">Focus Mode</span>
-    <button id="focus-exit" class="lbl border-[1.5px] border-ink px-3 py-1.5 active:bg-ink active:text-paper">Exit Blocker</button>
-  </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl mx-auto">
-    <div class="border-[1.5px] border-ink p-4 text-center bg-paperDark/20">
-      <span class="lbl text-charcoal block">Pomodoro Session</span>
-      <div id="pomo-timer" class="font-mono text-7xl font-semibold tracking-tighter tabular-nums my-2">25:00</div>
-      <p id="pomo-status" class="font-serif italic text-lg">Started from PC</p>
+        <div class="mt-2 grid grid-cols-3 gap-y-1.5 border-t border-dashed border-[#888888] pt-2">
+          <div class="cell">
+            <span>WIND</span>
+            <span id="weather-wind">--</span>
+          </div>
+          <div class="cell border-x border-dashed border-[#888888]">
+            <span>GUSTS</span>
+            <span id="weather-gust">--</span>
+          </div>
+          <div class="cell">
+            <span>HUMID</span>
+            <span id="weather-humidity">--</span>
+          </div>
+          <div class="cell">
+            <span>PRECIP</span>
+            <span id="weather-precip">--</span>
+          </div>
+          <div class="cell border-x border-dashed border-[#888888]">
+            <span>UV</span>
+            <span id="weather-uv">--</span>
+          </div>
+          <div class="cell">
+            <span>CLOUD</span>
+            <span id="weather-cloud">--</span>
+          </div>
+        </div>
+      </section>
     </div>
-    <div class="border-[1.5px] border-ink p-3 bg-paper">
-      <h3 class="font-serif text-xl font-medium border-b border-ink pb-1.5 mb-1">Active Focus Tasks</h3>
-      <ul id="pomo-todo-list" class="divide-y divide-dashed divide-[#888888]"></ul>
+
+    <!-- Forecast and Today's Scribble are added to this column. -->
+    <div class="col">
+      <section class="box">
+        <div class="lbl mb-1 border-b border-ink pb-1 font-semibold">
+          3-Day Outlook
+        </div>
+        <div
+          id="forecast-container"
+          class="divide-y divide-dashed divide-[#888888]"
+        >
+          <div class="py-1 font-serif text-base">Loading...</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tasks synced from the PC control panel. -->
+    <section class="box todos">
+      <header class="mb-2 flex items-baseline justify-between gap-2 border-b-[1.5px] border-ink pb-1.5">
+        <h1 class="font-serif text-2xl font-medium tracking-tight">
+          To-Do Display
+        </h1>
+        <div class="flex items-baseline gap-2">
+          <button
+            id="focus-chip"
+            class="lbl hidden bg-ink px-2 py-1 text-paper tabular-nums"
+            type="button"
+          ></button>
+          <span id="task-count" class="lbl text-charcoal">0 items</span>
+        </div>
+      </header>
+
+      <ul
+        id="todo-list"
+        class="divide-y divide-dashed divide-[#888888] border-y border-ink"
+      ></ul>
+
+      <p
+        id="empty-state"
+        class="hidden border-y border-ink py-6 text-center font-serif text-lg italic text-charcoal"
+      >
+        No active tasks. Add items from your PC control panel.
+      </p>
+    </section>
+  </main>
+
+  <!-- Appears when fullscreen has been enabled from the PC. -->
+  <div
+    id="fs-hint"
+    class="lbl fixed bottom-2 left-1/2 z-40 hidden -translate-x-1/2 bg-ink px-3 py-2 text-paper"
+  >
+    Tap anywhere for fullscreen
+  </div>
+
+  <!-- Focus mode overlay synced with the PC focus timer. -->
+  <div
+    id="focus-overlay"
+    class="fixed inset-0 z-50 hidden overflow-y-auto bg-[#F4F3EF] p-4"
+  >
+    <div class="mb-3 flex items-center justify-between border-b-[1.5px] border-ink pb-2">
+      <span class="lbl font-semibold">Focus Mode</span>
+      <button
+        id="focus-exit"
+        class="lbl border-[1.5px] border-ink px-3 py-1.5 active:bg-ink active:text-paper"
+        type="button"
+      >
+        Exit Blocker
+      </button>
+    </div>
+
+    <div class="mx-auto grid max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2">
+      <section class="border-[1.5px] border-ink bg-paperDark/20 p-4 text-center">
+        <span class="lbl block text-charcoal">Pomodoro Session</span>
+        <div
+          id="pomo-timer"
+          class="my-2 font-mono text-7xl font-semibold tracking-tighter tabular-nums"
+        >
+          25:00
+        </div>
+        <p id="pomo-status" class="font-serif text-lg italic">
+          Started from PC
+        </p>
+      </section>
+
+      <section class="border-[1.5px] border-ink bg-paper p-3">
+        <h3 class="mb-1 border-b border-ink pb-1.5 font-serif text-xl font-medium">
+          Active Focus Tasks
+        </h3>
+        <ul
+          id="pomo-todo-list"
+          class="divide-y divide-dashed divide-[#888888]"
+        ></ul>
+      </section>
     </div>
   </div>
-</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-const db = getDatabase(initializeApp({ databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/" }));
-const todosRef = ref(db, 'todos'), timerRef = ref(db, 'timer');
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  <!-- Shared site features, including scribble and countdown. -->
+  <script type="module" src="shared.js"></script>
 
-/* Clock */
-function clock() {
-  const n = new Date(), p = v => String(v).padStart(2, '0');
-  $('live-clock').textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
-  $('live-date').textContent = `${n.toLocaleDateString('en-GB', { weekday: 'short' })}, ${n.getDate()} ${n.toLocaleDateString('en-GB', { month: 'short' })} ${n.getFullYear()}`;
-}
-clock(); setInterval(clock, 1000);
+  <!-- Phone clock, weather, tasks, fullscreen, and focus timer. -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      onValue,
+      set
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/* Fullscreen, switched from the PC. Browsers only allow it after a tap, so the phone asks for one tap. */
-let fsWanted = false, armed = false;
-function syncFs() {
-  const inFs = !!document.fullscreenElement;
-  if (!fsWanted) { if (inFs) document.exitFullscreen().catch(() => {}); $('fs-hint').classList.add('hidden'); return; }
-  $('fs-hint').classList.toggle('hidden', inFs);
-  if (!inFs && !armed && document.documentElement.requestFullscreen) {
-    armed = true;
-    document.addEventListener('click', () => { armed = false; if (fsWanted && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {}); }, { once: true });
-  }
-}
-onValue(ref(db, 'display'), s => { fsWanted = !!(s.val() && s.val().fullscreen); syncFs(); });
-document.addEventListener('fullscreenchange', syncFs);
+    // Connect to the Firebase Realtime Database.
+    const app = initializeApp({
+      databaseURL: "https://website-f5c09-default-rtdb.europe-west1.firebasedatabase.app/"
+    });
 
-/* Weather */
-const wmo = c => c === 0 ? ['Clear', 'sun'] : c === 1 ? ['Mostly Clear', 'sun'] : c === 2 ? ['Partly Cloudy', 'cloud'] : c === 3 ? ['Overcast', 'cloud']
-  : (c === 45 || c === 48) ? ['Fog', 'cloud'] : c >= 95 ? ['Thunderstorm', 'rain'] : (c >= 71 && c <= 77) || c === 85 || c === 86 ? ['Snow', 'rain']
-  : c >= 51 ? [c <= 57 ? 'Drizzle' : c >= 80 ? 'Showers' : 'Rain', 'rain'] : ['Cloudy', 'cloud'];
-const icon = t => {
-  const cloud = '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>';
-  const g = t === 'sun' ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>' : t === 'rain' ? cloud + '<path d="M8 21l-1 2M12 21l-1 2M16 21l-1 2"/>' : cloud;
-  return `<svg class="w-full h-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">${g}</svg>`;
-};
-const uvBand = v => v < 3 ? 'Low' : v < 6 ? 'Mod' : v < 8 ? 'High' : 'V.High';
-const r0 = v => v == null ? '--' : Math.round(v);
-const LAT = 'latitude=51.9022&longitude=-0.2026';
+    const database = getDatabase(app);
+    const todosRef = ref(database, "todos");
+    const timerRef = ref(database, "timer");
 
-async function fetchWeather() {
-  try {
-    const d = await (await fetch(`https://api.open-meteo.com/v1/forecast?${LAT}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=4&wind_speed_unit=kmh&timezone=Europe/London`)).json();
-    const c = d.current, [label, ic] = wmo(c.weather_code);
-    $('weather-temp').textContent = `${r0(c.temperature_2m)}°C`;
-    $('weather-feels').textContent = `${r0(c.apparent_temperature)}°C`;
-    $('weather-condition').textContent = label;
-    $('weather-icon').innerHTML = icon(ic);
-    $('weather-wind').textContent = `${r0(c.wind_speed_10m)}km/h`;
-    $('weather-gust').textContent = `${r0(c.wind_gusts_10m)}km/h`;
-    $('weather-humidity').textContent = `${c.relative_humidity_2m}%`;
-    $('weather-precip').textContent = `${c.precipitation}mm`;
-    $('weather-uv').textContent = `${r0(c.uv_index)} ${uvBand(c.uv_index)}`;
-    $('weather-cloud').textContent = `${c.cloud_cover}%`;
-    $('forecast-container').innerHTML = [1, 2, 3].map(i => {
-      const [l, t] = wmo(d.daily.weather_code[i]), day = new Date(d.daily.time[i] + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short' });
-      return `<div class="flex items-center gap-2 py-1.5"><span class="font-mono text-base font-semibold w-[2.6rem]">${day}</span><span class="w-[1.7rem] h-[1.7rem] shrink-0">${icon(t)}</span>
-        <div class="flex-1 min-w-0 leading-tight"><div class="font-serif text-base font-medium truncate">${l}</div><div class="font-mono text-xs text-charcoal">RAIN ${d.daily.precipitation_probability_max[i] ?? '--'}%</div></div>
-        <span class="font-mono text-base tabular-nums whitespace-nowrap">${r0(d.daily.temperature_2m_min[i])}° / ${r0(d.daily.temperature_2m_max[i])}°</span></div>`;
-    }).join('');
-  } catch (e) { $('weather-condition').textContent = 'Unavailable'; }
-}
-fetchWeather(); setInterval(fetchWeather, 15 * 60 * 1000);
+    // Short helper for finding elements by ID.
+    const $ = id => document.getElementById(id);
 
-/* To-dos */
-let todos = [];
-const lists = [$('todo-list'), $('pomo-todo-list')];
-function renderTodos() {
-  const html = todos.map((t, i) => `<li class="py-2" data-index="${i}">
-    <div class="flex items-start gap-2.5"><input type="checkbox" class="eink-checkbox toggle-todo"><span class="font-serif text-[1.3rem] leading-snug break-words">${esc(t.text)}</span></div>
-    ${t.subtasks.length ? `<ul class="ml-9 mt-1.5 space-y-1.5 border-l border-dashed border-[#888888] pl-2.5">${t.subtasks.map((s, j) => `<li class="flex items-center gap-2" data-index="${i}" data-sub-index="${j}"><input type="checkbox" class="eink-checkbox sub toggle-subtask"><span class="font-serif text-[1.1rem] leading-snug break-words">${esc(s.text)}</span></li>`).join('')}</ul>` : ''}
-  </li>`).join('');
-  lists.forEach(l => l.innerHTML = html);
-  $('task-count').textContent = `${todos.length} items`;
-  $('todo-list').classList.toggle('hidden', !todos.length);
-  $('empty-state').classList.toggle('hidden', !!todos.length);
-}
-onValue(todosRef, s => {
-  const v = s.val();
-  todos = (Array.isArray(v) ? v : Object.values(v || {})).map(t => ({ text: t.text, subtasks: Array.isArray(t.subtasks) ? t.subtasks : Object.values(t.subtasks || {}) }));
-  renderTodos();
-});
-const save = () => set(todosRef, todos.map(t => ({ text: t.text, completed: false, subtasks: t.subtasks })));
-lists.forEach(l => l.addEventListener('change', e => {
-  const li = e.target.closest('li[data-index]'); if (!li) return;
-  const i = +li.dataset.index;
-  if (e.target.classList.contains('toggle-todo')) setTimeout(() => { todos.splice(i, 1); save(); }, 300);
-  else if (e.target.classList.contains('toggle-subtask')) setTimeout(() => { todos[i]?.subtasks.splice(+li.dataset.subIndex, 1); save(); }, 300);
-}));
+    // Escape task text before inserting it into HTML.
+    const escapeHTML = value => String(value).replace(/[&<>"']/g, character => ({
+      "&": "&",
+      "<": "<",
+      ">": ">",
+      '"': """,
+      "'": "'"
+    })[character]);
 
-/* Focus timer, started from the PC */
-let offset = 0, timer = null, dismissed = null, vibrated = null;
-onValue(ref(db, '.info/serverTimeOffset'), s => offset = s.val() || 0);
-onValue(timerRef, s => { timer = s.val(); syncTimer(); });
-const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-function syncTimer() {
-  const on = timer && (timer.status === 'running' || timer.status === 'paused');
-  const chip = $('focus-chip'), ov = $('focus-overlay');
-  if (!on) { ov.classList.add('hidden'); chip.classList.add('hidden'); return; }
-  const rem = timer.status === 'running' ? Math.max(0, Math.ceil((timer.endsAt - (Date.now() + offset)) / 1000)) : timer.remaining;
-  const done = timer.status === 'running' && rem === 0, hide = dismissed === timer.startedAt;
-  ov.classList.toggle('hidden', hide);
-  chip.classList.toggle('hidden', !hide);
-  chip.textContent = `Focus ${fmt(rem)}`;
-  $('pomo-timer').textContent = fmt(rem);
-  $('pomo-status').textContent = done ? 'Session complete' : timer.status === 'paused' ? 'Paused' : 'Running';
-  if (done && vibrated !== timer.startedAt) { vibrated = timer.startedAt; try { navigator.vibrate([300, 150, 300]); } catch (e) {} }
-}
-setInterval(syncTimer, 250);
-$('focus-exit').addEventListener('click', () => { dismissed = timer && timer.startedAt; syncTimer(); });
-$('focus-chip').addEventListener('click', () => { dismissed = null; syncTimer(); });
-</script>
-</body>
-</html>
+    /* -------------------- Clock and date -------------------- */
+
+    function updateClock() {
+      const now = new Date();
+      const pad = value => String(value).padStart(2, "0");
+
+      $("live-clock").textContent =
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+      $("live-date").textContent =
+        `${now.toLocaleDateString("en-GB", { weekday: "short" })}, ` +
+        `${now.getDate()} ` +
+        `${now.toLocaleDateString("en-GB", { month: "short" })} ` +
+        `${now.getFullYear()}`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    /* -------------------- Fullscreen control -------------------- */
+
+    // Fullscreen is requested remotely but requires a tap on the phone.
+    let fullscreenWanted = false;
+    let fullscreenTapArmed = false;
+
+    function syncFullscreen() {
+      const isFullscreen = Boolean(document.fullscreenElement);
+
+      if (!fullscreenWanted) {
+        if (isFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+
+        $("fs-hint").classList.add("hidden");
+        return;
+      }
+
+      $("fs-hint").classList.toggle("hidden", isFullscreen);
+
+      if (
+        !isFullscreen &&
+        !fullscreenTapArmed &&
+        document.documentElement.requestFullscreen
+      ) {
+        fullscreenTapArmed = true
+
+
+
+Write "continue" to complete the response
