@@ -1,4 +1,7 @@
-/* Daily Sheet shared additions */
+/* Daily Sheet shared styles
+   Used by the phone display, PC control panel, and shared components. */
+
+/* -------------------- Theme colours -------------------- */
 
 :root {
   --sheet-paper: #f4f3ef;
@@ -7,22 +10,24 @@
   --sheet-panel: #eae8e1;
 }
 
+/* Dark theme colour overrides. */
 html.sheet-dark {
   --sheet-paper: #181818;
   --sheet-ink: #f4f3ef;
   --sheet-muted: #c4c4c4;
   --sheet-panel: #292929;
+
   color-scheme: dark !important;
 }
 
-/* Dark mode overrides for the existing pages */
-
+/* Apply the dark theme to page backgrounds and text. */
 html.sheet-dark,
 html.sheet-dark body {
   background-color: var(--sheet-paper) !important;
   color: var(--sheet-ink) !important;
 }
 
+/* Dark theme panel backgrounds. */
 html.sheet-dark .bg-paper,
 html.sheet-dark .box,
 html.sheet-dark #focus-overlay,
@@ -35,6 +40,7 @@ html.sheet-dark [class*="bg-paperDark"] {
   background-color: var(--sheet-panel) !important;
 }
 
+/* Dark theme text colours. */
 html.sheet-dark .text-ink {
   color: var(--sheet-ink) !important;
 }
@@ -44,6 +50,7 @@ html.sheet-dark .cell span:first-child {
   color: var(--sheet-muted) !important;
 }
 
+/* Dark theme borders and form controls. */
 html.sheet-dark .border-ink,
 html.sheet-dark .box,
 html.sheet-dark .eink-input,
@@ -63,6 +70,7 @@ html.sheet-dark .eink-input:focus {
   background-color: var(--sheet-panel) !important;
 }
 
+/* Dark theme filled controls and checkboxes. */
 html.sheet-dark .bg-ink,
 html.sheet-dark .eink-btn.on,
 html.sheet-dark .eink-checkbox:checked {
@@ -74,6 +82,7 @@ html.sheet-dark .eink-checkbox::before {
   background-color: var(--sheet-paper) !important;
 }
 
+/* Dark theme hover and focus states. */
 html.sheet-dark .eink-btn:hover:not(:disabled),
 html.sheet-dark .sm-btn:hover:not(:disabled),
 html.sheet-dark a.group:hover {
@@ -86,14 +95,15 @@ html.sheet-dark a.group:hover .text-charcoal {
   color: var(--sheet-paper) !important;
 }
 
-/* Shared controls */
+/* -------------------- Shared controls -------------------- */
 
+/* Buttons used by the scribble editor and other shared features. */
 .sheet-button {
   border: 1.5px solid var(--sheet-ink);
   border-radius: 0;
+  padding: 9px 12px;
   background: var(--sheet-paper);
   color: var(--sheet-ink);
-  padding: 9px 12px;
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   line-height: 1.2;
@@ -114,17 +124,19 @@ html.sheet-dark a.group:hover .text-charcoal {
   cursor: wait;
 }
 
+/* Text and date inputs used by shared forms. */
 .sheet-input {
   width: 100%;
   border: 1.5px solid var(--sheet-ink);
   border-radius: 0;
+  padding: 8px;
   background: var(--sheet-paper);
   color: var(--sheet-ink);
-  padding: 8px;
   font-family: "Newsreader", Georgia, serif;
   font-size: 16px;
 }
 
+/* Small uppercase form labels. */
 .sheet-label {
   display: block;
   margin-bottom: 5px;
@@ -135,12 +147,13 @@ html.sheet-dark a.group:hover .text-charcoal {
   text-transform: uppercase;
 }
 
+/* Shared bordered panel and heading styles. */
 .sheet-panel {
+  margin-top: 1rem;
   border: 1.5px solid var(--sheet-ink);
+  padding: 1rem;
   background: var(--sheet-paper);
   color: var(--sheet-ink);
-  padding: 1rem;
-  margin-top: 1rem;
 }
 
 .sheet-heading {
@@ -159,13 +172,15 @@ html.sheet-dark a.group:hover .text-charcoal {
   font-size: .9rem;
 }
 
-/* PC event manager */
+/* -------------------- PC event manager -------------------- */
 
+/* Layout for the add/edit event form. */
 .event-form {
   display: grid;
   gap: .75rem;
 }
 
+/* Checkbox and label for yearly event repeats. */
 .event-repeat {
   display: flex;
   align-items: center;
@@ -179,6 +194,7 @@ html.sheet-dark a.group:hover .text-charcoal {
   accent-color: var(--sheet-ink);
 }
 
+/* Event list and individual event rows. */
 .event-list {
   margin: .75rem 0 0;
   padding: 0;
@@ -190,10 +206,11 @@ html.sheet-dark a.group:hover .text-charcoal {
   align-items: center;
   justify-content: space-between;
   gap: .5rem;
-  padding: .6rem 0;
   border-top: 1px dashed var(--sheet-muted);
+  padding: .6rem 0;
 }
 
+/* Event name and date details. */
 .event-info {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -207,14 +224,16 @@ html.sheet-dark a.group:hover .text-charcoal {
   font-size: 10px;
 }
 
-/* Phone drawing preview and countdown */
+/* -------------------- Phone scribble and countdown -------------------- */
 
+/* Preview panel containing the saved daily drawing. */
 .scribble-preview-box {
   display: flex;
   flex-direction: column;
   min-height: 100px;
 }
 
+/* Drawing preview area; clips the image to the panel. */
 .scribble-preview-content {
   position: relative;
   display: flex;
@@ -223,10 +242,11 @@ html.sheet-dark a.group:hover .text-charcoal {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #fff;
   border: 1px solid var(--sheet-ink);
+  background: #ffffff;
 }
 
+/* Scale the saved drawing to fit the preview area. */
 .scribble-preview-content img {
   width: 100%;
   height: 100%;
@@ -234,22 +254,25 @@ html.sheet-dark a.group:hover .text-charcoal {
   object-fit: contain;
 }
 
+/* Message shown when there is no drawing to preview. */
 .scribble-preview-content p {
   position: absolute;
   margin: 0;
   padding: .5rem;
-  color: #666;
+  color: #666666;
   font-family: "Newsreader", Georgia, serif;
   font-size: .9rem;
   text-align: center;
 }
 
+/* Bar containing the countdown and scribble button. */
 .phone-bottom-bar {
   display: flex;
   align-items: stretch;
   gap: .5rem;
 }
 
+/* Let the countdown use available space without overflowing. */
 .phone-countdown {
   flex: 1;
   min-width: 0;
@@ -269,16 +292,19 @@ html.sheet-dark a.group:hover .text-charcoal {
   line-height: 1.15;
 }
 
+/* Prevent the scribble button from shrinking. */
 .phone-scribble-button {
   flex-shrink: 0;
 }
 
-/* Drawing editor */
+/* -------------------- Drawing editor -------------------- */
 
+/* Ensure a hidden editor stays hidden despite its flex layout. */
 .scribble-overlay[hidden] {
   display: none !important;
 }
 
+/* Full-screen dimmed background behind the drawing editor. */
 .scribble-overlay {
   position: fixed;
   inset: 0;
@@ -292,6 +318,7 @@ html.sheet-dark a.group:hover .text-charcoal {
   -webkit-backdrop-filter: blur(5px);
 }
 
+/* Drawing editor window. */
 .scribble-dialog {
   display: flex;
   flex-direction: column;
@@ -299,11 +326,12 @@ html.sheet-dark a.group:hover .text-charcoal {
   height: 100%;
   min-height: 0;
   border: 1.5px solid var(--sheet-ink);
+  padding: 10px;
   background: var(--sheet-paper);
   color: var(--sheet-ink);
-  padding: 10px;
 }
 
+/* Editor heading and Finish button. */
 .scribble-header {
   display: flex;
   align-items: center;
@@ -318,6 +346,7 @@ html.sheet-dark a.group:hover .text-charcoal {
   font-size: 1.25rem;
 }
 
+/* Main editor row: canvas area beside the drawing tools. */
 .scribble-workspace {
   display: flex;
   flex: 1;
@@ -325,6 +354,7 @@ html.sheet-dark a.group:hover .text-charcoal {
   gap: 8px;
 }
 
+/* Area that centres and contains the drawing canvas. */
 .scribble-canvas-area {
   display: flex;
   flex: 1;
@@ -336,18 +366,20 @@ html.sheet-dark a.group:hover .text-charcoal {
   background: var(--sheet-panel);
 }
 
+/* Drawing canvas; its shape matches the 3:2 drawing image. */
 #scribble-canvas {
   display: block;
   width: min(100%, calc((100dvh - 110px) * 1.5));
   height: auto;
   max-height: 100%;
   aspect-ratio: 3 / 2;
-  background: #fff;
   outline: 1px solid var(--sheet-ink);
+  background: #ffffff;
   cursor: crosshair;
   touch-action: none;
 }
 
+/* Drawing tools are arranged vertically beside the canvas. */
 .scribble-tools {
   display: flex;
   flex-direction: column;
@@ -358,6 +390,7 @@ html.sheet-dark a.group:hover .text-charcoal {
   min-width: 70px;
 }
 
+/* Status text shown beneath the drawing editor. */
 .scribble-status {
   min-height: 1.3em;
   margin-top: 5px;
@@ -366,40 +399,44 @@ html.sheet-dark a.group:hover .text-charcoal {
   font-size: .85rem;
 }
 
-/* PC drag handles */
+/* -------------------- PC task drag handles -------------------- */
 
+/* Reorder handle added beside each task and sub-task. */
 .drag-handle {
   flex-shrink: 0;
   border: 1px solid var(--sheet-ink);
+  padding: 5px 7px;
   background: transparent;
   color: inherit;
-  padding: 5px 7px;
-  cursor: grab;
   font-family: "JetBrains Mono", monospace;
   font-size: 13px;
   line-height: 1;
+  cursor: grab;
 }
 
 .drag-handle:active {
   cursor: grabbing;
 }
 
+/* Highlight the task row currently targeted during dragging. */
 .drag-target {
   outline: 2px dashed var(--sheet-ink);
   outline-offset: 2px;
 }
 
-/* The sidebar can grow when events and scribble controls are added. */
+/* Allow the PC sidebar to grow for added event and scribble panels. */
 body.pc-page main aside {
   position: static;
 }
 
+/* -------------------- Landscape phone layout -------------------- */
+
 /*
-  Landscape phone layout:
-  - Clock/weather on the left
-  - Forecast/scribble in the middle
+  Arrange the phone display in landscape:
+  - Clock and weather on the left
+  - Forecast and scribble in the middle
   - Tasks on the right
-  - Countdown underneath the first two columns
+  - Countdown beneath the first two columns
 */
 @media (orientation: landscape) {
   body.phone-page {
@@ -419,30 +456,36 @@ body.pc-page main aside {
     min-height: 0;
   }
 
+  /* Let the weather panel fill the available first-column space. */
   body.phone-page .app > .col:first-child > section:last-child {
     flex: 1;
   }
 
+  /* Let the scribble preview fill the available second-column space. */
   body.phone-page .scribble-preview-box {
     flex: 1;
   }
 
+  /* Stretch the task list across both landscape grid rows. */
   body.phone-page .todos {
     grid-column: 3;
     grid-row: 1 / 3;
     min-height: 0;
   }
 
+  /* Place the countdown underneath the weather and forecast columns. */
   body.phone-page .phone-bottom-bar {
     grid-column: 1 / 3;
     grid-row: 2;
   }
 
+  /* Allow the phone task list to scroll independently. */
   body.phone-page #todo-list {
     overflow-y: auto;
   }
 }
 
+/* Make the drawing tools more compact on narrow screens. */
 @media (max-width: 500px) {
   .scribble-tools .sheet-button {
     min-width: 58px;
