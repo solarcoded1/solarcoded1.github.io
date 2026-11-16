@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="shared.css">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
@@ -26,7 +28,10 @@ body{background-color:#F4F3EF;color:#111;background-image:url("data:image/svg+xm
 .eink-btn.on{background:#111!important;color:#F4F3EF!important}
 </style>
 </head>
-<body class="min-h-screen p-4 sm:p-6 selection:bg-ink selection:text-paper">
+
+<script type="module" src="shared.js"></script>
+
+<body class="pc-page min-h-screen p-4 sm:p-6 selection:bg-ink selection:text-paper">
 
 <header class="w-full max-w-6xl mx-auto border-[1.5px] border-ink bg-paper p-4 mb-4 flex items-center justify-between">
   <div>
@@ -50,7 +55,12 @@ body{background-color:#F4F3EF;color:#111;background-image:url("data:image/svg+xm
         </div>
         <button type="submit" class="eink-btn w-full">Add Task</button>
       </form>
-      <p class="font-serif italic text-sm text-charcoal mt-3 pt-3 border-t border-dashed border-[#888888]">Add sub-tasks any time from the task's own card. Use the arrows to set the order the phone shows.</p>
+      <p class="font-serif italic text-sm text-charcoal mt-3 pt-3 border-t border-dashed border-[#888888]">
+  Add sub-tasks from their task card. Drag the handles to change the
+  order shown on your phone. You can also focus a handle and use
+  Alt + Up or Alt + Down.
+</p>
+
     </section>
   </aside>
 
