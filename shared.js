@@ -1,6 +1,4 @@
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
   getDatabase,
@@ -12,9 +10,11 @@ import {
   runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+/* -------------------- Firebase setup -------------------- */
+
 /*
-  A named app lets this module coexist with the Firebase app
-  already initialized by phone.html and pc.html.
+  This module uses a named Firebase app so it can coexist with the
+  default Firebase app initialized separately by phone.html and pc.html.
 */
 const app = initializeApp(
   {
@@ -24,18 +24,24 @@ const app = initializeApp(
   "daily-sheet-shared"
 );
 
-const db = getDatabase(app);
-const themeRef = ref(db, "sheetTheme");
-const eventsRef = ref(db, "sheetEvents");
-const scribbleRef = ref(db, "sheetScribble");
-const todosRef = ref(db, "todos");
+const database = getDatabase(app);
 
+// Firebase locations used by shared site features.
+const themeRef = ref(database, "sheetTheme");
+const eventsRef = ref(database, "sheetEvents");
+const scribbleRef = ref(database, "sheetScribble");
+const todosRef = ref(database, "todos");
+
+// Short helper for finding elements by ID.
 const $ = id => document.getElementById(id);
+
+// Identify which page loaded this shared module.
 const isPhone = document.body.classList.contains("phone-page");
 const isPC = document.body.classList.contains("pc-page");
 
-/* ---------- UK calendar dates ---------- */
+/* -------------------- UK calendar date helpers -------------------- */
 
+// Return today's date in UK time as YYYY-MM-DD.
 function ukDateString() {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
@@ -44,13 +50,16 @@ function ukDateString() {
     day: "2-digit"
   }).formatToParts(new Date());
 
-  const get = type => parts.find(part => part.type === type).value;
+  const getPart = type => parts.find(part => part.type === type).value;
 
-  return `${get("year")}-${get("month")}-${get("day")}`;
+  return `${getPart("year")}-${getPart("month")}-${getPart("day")}`;
 }
 
+// Check that a date is a real calendar date in YYYY-MM-DD format.
 function validDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
 
   const [year, month, day] = value.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day));
@@ -62,11 +71,13 @@ function validDate(value) {
   );
 }
 
+// Convert a YYYY-MM-DD date to a UTC number for safe date arithmetic.
 function dateNumber(value) {
   const [year, month, day] = value.split("-").map(Number);
   return Date.UTC(year, month - 1, day);
 }
 
+// Format a stored date for display, for example "12 Jun 2025".
 function prettyDate(value) {
   return new Date(dateNumber(value)).toLocaleDateString("en-GB", {
     timeZone: "UTC",
@@ -77,12 +88,14 @@ function prettyDate(value) {
 }
 
 /*
-  Annual 29 February events occur in the next leap year.
-  Events never repeat before their original start date.
+  Find the next occurrence of an event.
+  Annual events repeat after their original start date, including
+  29 February events, which return on the next leap year.
 */
 function nextOccurrence(event, today) {
   if (!validDate(event.date)) return null;
 
+  // A one-off event has no occurrence after its date has passed.
   if (!event.repeat) {
     return event.date >= today ? event.date : null;
   }
@@ -91,10 +104,11 @@ function nextOccurrence(event, today) {
   const currentYear = Number(today.slice(0, 4));
   const firstYear = Math.max(startYear, currentYear);
 
+  // Search ahead far enough to find the next valid annual date.
   for (let year = firstYear; year <= firstYear + 8; year++) {
     const candidate =
-      `${year}-${String(month).padStart(2, "0")}` +
-      `-${String(day).padStart(2, "0")}`;
+      `${year}-${String(month).padStart(2, "0")}-` +
+      `${String(day).padStart(2, "0")}`;
 
     if (validDate(candidate) && candidate >= today) {
       return candidate;
@@ -104,10 +118,11 @@ function nextOccurrence(event, today) {
   return null;
 }
 
-/* ---------- Shared theme ---------- */
+/* -------------------- Shared colour theme -------------------- */
 
 let currentTheme = "light";
 
+// Apply the selected theme and update the PC theme button, if present.
 function applyTheme(theme) {
   currentTheme = theme === "dark" ? "dark" : "light";
 
@@ -129,11 +144,13 @@ function applyTheme(theme) {
   }
 }
 
+// Add the theme toggle to the PC control panel.
 if (isPC) {
   const headerButtons = document.querySelector("header .flex.gap-2");
 
   if (headerButtons) {
     const button = document.createElement("button");
+
     button.id = "sheet-theme-toggle";
     button.type = "button";
     button.className = "eink-btn";
@@ -143,12 +160,10 @@ if (isPC) {
       button.disabled = true;
 
       try {
-        await set(
-          themeRef,
-          currentTheme === "dark" ? "light" : "dark"
-        );
+        const nextTheme = currentTheme === "dark" ? "light" : "dark";
+        await set(themeRef, nextTheme);
       } catch (error) {
-        console.error(error);
+        console.error("Could not save the theme:", error);
         alert("Could not save the theme. Check Firebase access.");
       } finally {
         button.disabled = false;
@@ -159,25 +174,27 @@ if (isPC) {
   }
 }
 
+// Keep the theme in sync across pages and devices.
 onValue(
   themeRef,
   snapshot => applyTheme(snapshot.val()),
-  error => console.error("Could not load theme:", error)
+  error => console.error("Could not load the theme:", error)
 );
 
-/* ---------- Countdown events ---------- */
+/* -------------------- Countdown events -------------------- */
 
 let events = [];
 let countdownText = null;
 let eventList = null;
 let editingEventId = null;
 
+// Find the next upcoming event and show its countdown on the phone.
 function renderCountdown() {
   if (!countdownText) return;
 
   const today = ukDateString();
 
-  const upcoming = events
+  const upcomingEvents = events
     .map(event => ({
       ...event,
       nextDate: nextOccurrence(event, today)
@@ -188,22 +205,24 @@ function renderCountdown() {
       a.name.localeCompare(b.name)
     );
 
-  if (!upcoming.length) {
+  if (upcomingEvents.length === 0) {
     countdownText.textContent = "No upcoming events";
     return;
   }
 
-  const event = upcoming[0];
-  const days = Math.round(
+  const event = upcomingEvents[0];
+  const daysRemaining = Math.round(
     (dateNumber(event.nextDate) - dateNumber(today)) / 86400000
   );
 
-  countdownText.textContent =
-    days === 0
-      ? `${event.name} — Today`
-      : `${event.name} — ${days} ${days === 1 ? "day" : "days"} to go`;
+  countdownText.textContent = daysRemaining === 0
+    ? `${event.name} — Today`
+    : `${event.name} — ${daysRemaining} ${
+        daysRemaining === 1 ? "day" : "days"
+      } to go`;
 }
 
+// Clear the event form and leave edit mode.
 function resetEventForm() {
   editingEventId = null;
   $("event-form").reset();
@@ -211,26 +230,27 @@ function resetEventForm() {
   $("event-cancel").hidden = true;
 }
 
+// Build the PC event list with Edit and Delete buttons.
 function renderEventList() {
   if (!eventList) return;
 
   eventList.replaceChildren();
 
-  if (!events.length) {
-    const empty = document.createElement("li");
-    empty.className = "event-info";
-    empty.textContent = "No events added yet.";
-    eventList.append(empty);
+  if (events.length === 0) {
+    const emptyItem = document.createElement("li");
+    emptyItem.className = "event-info";
+    emptyItem.textContent = "No events added yet.";
+    eventList.append(emptyItem);
     return;
   }
 
-  const sorted = [...events].sort((a, b) =>
+  const sortedEvents = [...events].sort((a, b) =>
     a.date.localeCompare(b.date) ||
     a.name.localeCompare(b.name)
   );
 
-  for (const event of sorted) {
-    const li = document.createElement("li");
+  for (const event of sortedEvents) {
+    const item = document.createElement("li");
     const info = document.createElement("div");
     info.className = "event-info";
 
@@ -238,14 +258,14 @@ function renderEventList() {
     name.textContent = event.name;
 
     const details = document.createElement("small");
-    const past =
+    const pastLabel =
       !event.repeat && event.date < ukDateString()
         ? " · Past"
         : "";
 
     details.textContent =
       `${prettyDate(event.date)}` +
-      `${event.repeat ? " · Repeats yearly" : ""}${past}`;
+      `${event.repeat ? " · Repeats yearly" : ""}${pastLabel}`;
 
     info.append(name, details);
 
@@ -253,6 +273,7 @@ function renderEventList() {
     actions.style.display = "flex";
     actions.style.gap = "4px";
 
+    // Load this event into the form for editing.
     const editButton = document.createElement("button");
     editButton.type = "button";
     editButton.className = "sheet-button";
@@ -268,6 +289,7 @@ function renderEventList() {
       $("event-name").focus();
     });
 
+    // Delete the event from Firebase after confirmation.
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "sheet-button";
@@ -279,24 +301,25 @@ function renderEventList() {
       deleteButton.disabled = true;
 
       try {
-        await remove(ref(db, `sheetEvents/${event.id}`));
+        await remove(ref(database, `sheetEvents/${event.id}`));
 
         if (editingEventId === event.id) {
           resetEventForm();
         }
       } catch (error) {
-        console.error(error);
+        console.error("Could not delete the event:", error);
         alert("Could not delete the event. Check Firebase access.");
         deleteButton.disabled = false;
       }
     });
 
     actions.append(editButton, deleteButton);
-    li.append(info, actions);
-    eventList.append(li);
+    item.append(info, actions);
+    eventList.append(item);
   }
 }
 
+// Add the countdown and Open Scribble button to the phone page.
 function createPhoneCountdown() {
   const main = document.querySelector(".app");
   if (!main) return;
@@ -327,6 +350,7 @@ function createPhoneCountdown() {
   main.append(bar);
 }
 
+// Add the event creation and editing panel to the PC sidebar.
 function createEventManager() {
   const aside = document.querySelector("main aside");
   if (!aside) return;
@@ -407,13 +431,13 @@ function createEventManager() {
       return;
     }
 
-    const button = $("event-submit");
-    button.disabled = true;
+    const submitButton = $("event-submit");
+    submitButton.disabled = true;
     message.textContent = "Saving...";
 
     try {
       const eventRef = editingEventId
-        ? ref(db, `sheetEvents/${editingEventId}`)
+        ? ref(database, `sheetEvents/${editingEventId}`)
         : push(eventsRef);
 
       await set(eventRef, { name, date, repeat });
@@ -422,18 +446,20 @@ function createEventManager() {
       message.textContent = "Event saved.";
       $("event-name").focus();
     } catch (error) {
-      console.error(error);
+      console.error("Could not save the event:", error);
       message.textContent =
         "Could not save. Check your connection and Firebase rules.";
     } finally {
-      button.disabled = false;
+      submitButton.disabled = false;
     }
   });
 }
 
+// Create only the event interface needed by the current page.
 if (isPhone) createPhoneCountdown();
 if (isPC) createEventManager();
 
+// Keep the local event list and phone countdown synced with Firebase.
 onValue(
   eventsRef,
   snapshot => {
@@ -444,7 +470,7 @@ onValue(
         id,
         name: String(event?.name || ""),
         date: String(event?.date || ""),
-        repeat: !!event?.repeat
+        repeat: Boolean(event?.repeat)
       }))
       .filter(event => event.name && validDate(event.date));
 
@@ -460,7 +486,7 @@ onValue(
   }
 );
 
-/* ---------- Shared daily scribble ---------- */
+/* -------------------- Shared daily scribble -------------------- */
 
 let savedScribble = null;
 let scribbleLoaded = false;
@@ -476,6 +502,7 @@ let previewImage = null;
 let previewEmpty = null;
 let previouslyFocused = null;
 
+// Create the saved drawing preview in the phone's forecast column.
 function createPhonePreview() {
   const columns = document.querySelectorAll(".app > .col");
   const secondColumn = columns[1];
@@ -504,612 +531,13 @@ function createPhonePreview() {
   previewEmpty = $("scribble-preview-empty");
 }
 
+// Add the scribble launch button to the PC sidebar.
 function createPCScribblePanel() {
   const aside = document.querySelector("main aside");
   if (!aside) return;
 
-  const panel = document.createElement("section");
-  panel.className = "sheet-panel";
+  const panel = document
 
-  panel.innerHTML = `
-    <h2 class="sheet-heading">Today's Scribble</h2>
-    <p class="sheet-message">
-      Draw here or on your phone. Press Finish to share the drawing.
-      It clears on the next UK calendar day.
-    </p>
-    <button id="pc-open-scribble" class="sheet-button" type="button">
-      Open Scribble
-    </button>
-  `;
 
-  aside.append(panel);
-  $("pc-open-scribble").addEventListener("click", openScribble);
-}
 
-function createScribbleModal() {
-  modal = document.createElement("div");
-  modal.className = "scribble-overlay";
-  modal.hidden = true;
-
-  modal.innerHTML = `
-    <div
-      class="scribble-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="scribble-title"
-    >
-      <div class="scribble-header">
-        <h2 id="scribble-title">Today's Scribble</h2>
-        <button id="scribble-finish" class="sheet-button" type="button">
-          Finish
-        </button>
-      </div>
-
-      <div class="scribble-workspace">
-        <div class="scribble-canvas-area">
-          <canvas
-            id="scribble-canvas"
-            width="1200"
-            height="800"
-            aria-label="Drawing canvas"
-          ></canvas>
-        </div>
-
-        <div class="scribble-tools">
-          <button
-            id="scribble-pen"
-            class="sheet-button active"
-            type="button"
-            aria-pressed="true"
-          >Pen</button>
-
-          <button
-            id="scribble-rubber"
-            class="sheet-button"
-            type="button"
-            aria-pressed="false"
-          >Rubber</button>
-
-          <button
-            id="scribble-clear"
-            class="sheet-button"
-            type="button"
-          >Clear</button>
-        </div>
-      </div>
-
-      <div
-        id="scribble-status"
-        class="scribble-status"
-        aria-live="polite"
-      ></div>
-    </div>
-  `;
-
-  document.body.append(modal);
-
-  canvas = $("scribble-canvas");
-  context = canvas.getContext("2d");
-
-  $("scribble-pen").addEventListener("click", () => setTool("pen"));
-  $("scribble-rubber").addEventListener("click", () => setTool("rubber"));
-
-  $("scribble-clear").addEventListener("click", () => {
-    if (confirm("Clear today's scribble?")) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      $("scribble-status").textContent =
-        "Cleared. Press Finish to save.";
-    }
-  });
-
-  $("scribble-finish").addEventListener("click", finishScribble);
-
-  canvas.addEventListener("pointerdown", pointerDown);
-  canvas.addEventListener("pointermove", pointerMove);
-  canvas.addEventListener("pointerup", pointerUp);
-  canvas.addEventListener("pointercancel", pointerUp);
-}
-
-function setTool(nextTool) {
-  tool = nextTool;
-
-  $("scribble-pen").classList.toggle("active", tool === "pen");
-  $("scribble-rubber").classList.toggle("active", tool === "rubber");
-
-  $("scribble-pen").setAttribute(
-    "aria-pressed",
-    String(tool === "pen")
-  );
-
-  $("scribble-rubber").setAttribute(
-    "aria-pressed",
-    String(tool === "rubber")
-  );
-}
-
-function updatePreview() {
-  if (!previewImage || !previewEmpty) return;
-
-  const image =
-    savedScribble?.date === ukDateString()
-      ? savedScribble.image
-      : null;
-
-  if (image) {
-    previewImage.src = image;
-    previewImage.hidden = false;
-    previewEmpty.hidden = true;
-  } else {
-    previewImage.removeAttribute("src");
-    previewImage.hidden = true;
-    previewEmpty.hidden = false;
-  }
-}
-
-function loadImageIntoCanvas(imageData) {
-  return new Promise((resolve, reject) => {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (!imageData) {
-      resolve();
-      return;
-    }
-
-    const image = new Image();
-
-    image.onload = () => {
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      resolve();
-    };
-
-    image.onerror = reject;
-    image.src = imageData;
-  });
-}
-
-async function openScribble() {
-  if (!modal) return;
-
-  if (!scribbleLoaded) {
-    alert(
-      "The shared drawing has not loaded yet. " +
-      "Check your connection and Firebase rules, then try again."
-    );
-    return;
-  }
-
-  previouslyFocused = document.activeElement;
-  editorDate = ukDateString();
-  modal.hidden = false;
-
-  $("scribble-status").textContent = "Loading drawing...";
-  $("scribble-finish").disabled = true;
-  canvas.style.pointerEvents = "none";
-
-  const image =
-    savedScribble?.date === editorDate
-      ? savedScribble.image
-      : null;
-
-  try {
-    await loadImageIntoCanvas(image);
-
-    $("scribble-status").textContent =
-      "Draw with a mouse, finger, or compatible stylus.";
-  } catch (error) {
-    console.error(error);
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    $("scribble-status").textContent =
-      "The saved drawing could not be loaded.";
-  } finally {
-    $("scribble-finish").disabled = false;
-    canvas.style.pointerEvents = "";
-    setTool("pen");
-    $("scribble-finish").focus();
-  }
-}
-
-async function finishScribble() {
-  if (editorDate !== ukDateString()) {
-    alert(
-      "The UK date changed while the editor was open. " +
-      "The previous day's drawing cannot be saved into the new day."
-    );
-
-    modal.hidden = true;
-    updatePreview();
-    previouslyFocused?.focus();
-    return;
-  }
-
-  const button = $("scribble-finish");
-  button.disabled = true;
-  $("scribble-status").textContent = "Saving...";
-
-  try {
-    const image = canvas.toDataURL("image/png");
-
-    await set(scribbleRef, {
-      date: editorDate,
-      image
-    });
-
-    modal.hidden = true;
-    previouslyFocused?.focus();
-  } catch (error) {
-    console.error(error);
-
-    $("scribble-status").textContent =
-      "Could not save. Check your connection and Firebase rules, " +
-      "then try Finish again.";
-  } finally {
-    button.disabled = false;
-  }
-}
-
-function canvasPoint(event) {
-  const rect = canvas.getBoundingClientRect();
-
-  return {
-    x: (event.clientX - rect.left) * canvas.width / rect.width,
-    y: (event.clientY - rect.top) * canvas.height / rect.height
-  };
-}
-
-function configureBrush() {
-  context.lineCap = "round";
-  context.lineJoin = "round";
-
-  if (tool === "rubber") {
-    context.globalCompositeOperation = "destination-out";
-    context.lineWidth = 38;
-    context.strokeStyle = "#000";
-    context.fillStyle = "#000";
-  } else {
-    context.globalCompositeOperation = "source-over";
-    context.lineWidth = 4;
-    context.strokeStyle = "#111";
-    context.fillStyle = "#111";
-  }
-}
-
-function pointerDown(event) {
-  if (drawing) return;
-  if (event.pointerType === "mouse" && event.button !== 0) return;
-
-  event.preventDefault();
-
-  drawing = true;
-  activePointer = event.pointerId;
-  lastPoint = canvasPoint(event);
-  canvas.setPointerCapture(event.pointerId);
-
-  configureBrush();
-
-  context.beginPath();
-  context.arc(
-    lastPoint.x,
-    lastPoint.y,
-    context.lineWidth / 2,
-    0,
-    Math.PI * 2
-  );
-  context.fill();
-
-  $("scribble-status").textContent = "Press Finish to save.";
-}
-
-function pointerMove(event) {
-  if (!drawing || event.pointerId !== activePointer) return;
-
-  event.preventDefault();
-
-  const point = canvasPoint(event);
-  configureBrush();
-
-  context.beginPath();
-  context.moveTo(lastPoint.x, lastPoint.y);
-  context.lineTo(point.x, point.y);
-  context.stroke();
-
-  lastPoint = point;
-}
-
-function pointerUp(event) {
-  if (!drawing || event.pointerId !== activePointer) return;
-
-  drawing = false;
-  activePointer = null;
-  lastPoint = null;
-
-  if (canvas.hasPointerCapture(event.pointerId)) {
-    canvas.releasePointerCapture(event.pointerId);
-  }
-}
-
-async function clearOldScribble() {
-  const today = ukDateString();
-
-  try {
-    await runTransaction(scribbleRef, current => {
-      if (current && current.date && current.date < today) {
-        return null;
-      }
-
-      return undefined;
-    });
-  } catch (error) {
-    console.error("Could not clear yesterday's scribble:", error);
-  }
-}
-
-if (isPhone || isPC) {
-  createScribbleModal();
-
-  if (isPhone) createPhonePreview();
-  if (isPC) createPCScribblePanel();
-
-  onValue(
-    scribbleRef,
-    snapshot => {
-      savedScribble = snapshot.val();
-      scribbleLoaded = true;
-      updatePreview();
-
-      /*
-        Do not replace an open editor's canvas while the user draws.
-        If both devices edit at once, the last Finish wins.
-      */
-    },
-    error => {
-      console.error("Could not load scribble:", error);
-      scribbleLoaded = false;
-    }
-  );
-
-  clearOldScribble();
-}
-
-/* ---------- PC task drag handles ---------- */
-
-function installDragHandles() {
-  const list = $("pc-todo-list");
-  if (!list) return;
-
-  let dragging = null;
-
-  function addHandles() {
-    const upButtons = list.querySelectorAll('button[data-a="up"]');
-
-    upButtons.forEach(up => {
-      const row = up.closest("li");
-      const parentIndex = Number(up.dataset.i);
-      const isSub = up.dataset.j !== undefined;
-      const position = isSub
-        ? Number(up.dataset.j)
-        : parentIndex;
-
-      if (!row) return;
-
-      const handle = document.createElement("button");
-      handle.type = "button";
-      handle.className = "drag-handle";
-      handle.draggable = true;
-      handle.textContent = "⋮⋮";
-      handle.title = "Drag to reorder, or use Alt + Up / Down";
-      handle.setAttribute(
-        "aria-label",
-        isSub ? "Reorder subtask" : "Reorder task"
-      );
-
-      handle.dataset.kind = isSub ? "sub" : "task";
-      handle.dataset.parent = String(parentIndex);
-      handle.dataset.position = String(position);
-
-      const down = up.parentElement.querySelector(
-        'button[data-a="down"]'
-      );
-
-      if (down) down.remove();
-      up.remove();
-
-      const rowContent = isSub ? row : row.firstElementChild;
-      rowContent.prepend(handle);
-    });
-  }
-
-  function getHandleRow(target, kind) {
-    const row = target.closest("li");
-    if (!row) return null;
-
-    if (kind === "sub") {
-      return row.querySelector(":scope > .drag-handle");
-    }
-
-    const taskRow = target.closest("#pc-todo-list > li");
-    return taskRow?.querySelector(
-      ":scope > div > .drag-handle"
-    ) || null;
-  }
-
-  async function move(kind, parent, from, to) {
-    if (from === to) return;
-
-    try {
-      await runTransaction(todosRef, current => {
-        if (!current) return;
-
-        const tasks = Array.isArray(current)
-          ? current.slice()
-          : Object.values(current);
-
-        const array = kind === "task"
-          ? tasks
-          : tasks[parent]?.subtasks;
-
-        if (!array) return;
-
-        const items = Array.isArray(array)
-          ? array.slice()
-          : Object.values(array);
-
-        if (
-          from < 0 ||
-          to < 0 ||
-          from >= items.length ||
-          to >= items.length
-        ) {
-          return;
-        }
-
-        const [item] = items.splice(from, 1);
-        items.splice(to, 0, item);
-
-        if (kind === "task") {
-          return items;
-        }
-
-        tasks[parent] = {
-          ...tasks[parent],
-          subtasks: items
-        };
-
-        return tasks;
-      });
-    } catch (error) {
-      console.error(error);
-      alert("Could not save the new task order. Check Firebase access.");
-    }
-  }
-
-  function clearTargets() {
-    list.querySelectorAll(".drag-target").forEach(element => {
-      element.classList.remove("drag-target");
-    });
-  }
-
-  list.addEventListener("dragstart", event => {
-    const handle = event.target.closest(".drag-handle");
-    if (!handle) return;
-
-    dragging = {
-      kind: handle.dataset.kind,
-      parent: Number(handle.dataset.parent),
-      position: Number(handle.dataset.position)
-    };
-
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", "daily-sheet-task");
-  });
-
-  list.addEventListener("dragover", event => {
-    if (!dragging) return;
-
-    const target = getHandleRow(event.target, dragging.kind);
-    if (!target) return;
-
-    if (
-      dragging.kind === "sub" &&
-      Number(target.dataset.parent) !== dragging.parent
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-
-    clearTargets();
-    target.closest("li").classList.add("drag-target");
-  });
-
-  list.addEventListener("drop", event => {
-    if (!dragging) return;
-
-    const target = getHandleRow(event.target, dragging.kind);
-    if (!target) return;
-
-    if (
-      dragging.kind === "sub" &&
-      Number(target.dataset.parent) !== dragging.parent
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const from = dragging.position;
-    const to = Number(target.dataset.position);
-    const kind = dragging.kind;
-    const parent = dragging.parent;
-
-    dragging = null;
-    clearTargets();
-
-    move(kind, parent, from, to);
-  });
-
-  list.addEventListener("dragend", () => {
-    dragging = null;
-    clearTargets();
-  });
-
-  /* Keyboard alternative: focus a handle and press Alt + Up/Down. */
-  list.addEventListener("keydown", event => {
-    const handle = event.target.closest(".drag-handle");
-
-    if (
-      !handle ||
-      !event.altKey ||
-      !["ArrowUp", "ArrowDown"].includes(event.key)
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const from = Number(handle.dataset.position);
-    const to = from + (event.key === "ArrowUp" ? -1 : 1);
-
-    move(
-      handle.dataset.kind,
-      Number(handle.dataset.parent),
-      from,
-      to
-    );
-  });
-
-  /*
-    The existing PC script rebuilds task rows after Firebase updates.
-    Add handles again whenever those rows are rebuilt.
-  */
-  const observer = new MutationObserver(addHandles);
-  observer.observe(list, { childList: true, subtree: true });
-
-  addHandles();
-}
-
-if (isPC) installDragHandles();
-
-/* ---------- Date rollover ---------- */
-
-let lastCalendarDate = ukDateString();
-
-function checkCalendarDate() {
-  const today = ukDateString();
-
-  if (today !== lastCalendarDate) {
-    lastCalendarDate = today;
-    renderCountdown();
-    renderEventList();
-    updatePreview();
-
-    if (isPhone || isPC) {
-      clearOldScribble();
-    }
-  }
-}
-
-setInterval(checkCalendarDate, 30000);
-document.addEventListener("visibilitychange", checkCalendarDate);
+Write "continue" to complete the response
