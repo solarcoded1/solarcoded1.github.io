@@ -1,116 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="shared.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="mobile-web-app-capable" content="yes">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>Daily Sheet — Select Platform</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Editorial Serif & Crisp Monospace Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+  <title>Daily Sheet — Select Platform</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['Newsreader', 'Georgia', 'serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        paper: '#F4F3EF',
-                        paperDark: '#EAE8E1',
-                        ink: '#111111',
-                        charcoal: '#555555',
-                    }
-                }
-            }
+  <!-- App manifest and shared styles used across the website. -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="shared.css">
+
+  <!-- Load Tailwind CSS for the page's utility classes. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Load the fonts used for headings, body text, and labels. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Add the project's custom fonts and colours to Tailwind. -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ["Newsreader", "Georgia", "serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          },
+          colors: {
+            paper: "#F4F3EF",
+            paperDark: "#EAE8E1",
+            ink: "#111111",
+            charcoal: "#555555"
+          }
         }
-    </script>
+      }
+    };
+  </script>
 
-    <style>
-        body {
-            background-color: #F4F3EF;
-            color: #111111;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
-            -webkit-font-smoothing: antialiased;
-        }
+  <!-- Page-specific background and keyboard focus styling. -->
+  <style>
+    body {
+      background-color: #F4F3EF;
+      color: #111111;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+      -webkit-font-smoothing: antialiased;
+    }
 
-        a:focus-visible {
-            outline: 1.5px solid #111111;
-            outline-offset: 2px;
-        }
-    </style>
+    /* Make links easy to identify when navigating with a keyboard. */
+    a:focus-visible {
+      outline: 1.5px solid #111111;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 
-<script type="module" src="shared.js"></script>
-
 <body class="min-h-screen flex items-center justify-center p-6 selection:bg-ink selection:text-paper">
+  <!-- Main page panel containing the platform choices. -->
+  <main class="w-full max-w-lg border-[1.5px] border-ink bg-paper p-6 sm:p-10">
 
-    <main class="w-full max-w-lg border-[1.5px] border-ink bg-paper p-6 sm:p-10">
-        
-        <header class="border-b-[1.5px] border-ink pb-4 mb-8 text-center">
-            <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-charcoal block mb-1">
-                E-Paper Workspace
-            </span>
-            <h1 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-ink">
-                Daily Sheet
-            </h1>
-        </header>
+    <!-- Page title and site identity. -->
+    <header class="border-b-[1.5px] border-ink pb-4 mb-8 text-center">
+      <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-charcoal block mb-1">
+        E-Paper Workspace
+      </span>
 
-        <div class="space-y-4">
-            <!-- Phone Display Option -->
-            <a 
-                href="phone.html" 
-                class="group block border-[1.5px] border-ink bg-transparent p-5 hover:bg-ink hover:text-paper transition-none"
-            >
-                <div class="flex items-center justify-between mb-1">
-                    <span class="font-mono text-xs uppercase tracking-[0.14em] font-semibold">
-                        01 / Mobile View
-                    </span>
-                    <span class="font-mono text-sm">&rarr;</span>
-                </div>
-                <h2 class="font-serif text-2xl font-medium">
-                    Phone Display
-                </h2>
-                <p class="font-serif text-sm text-charcoal group-hover:text-paperDark mt-1">
-                    Clean read-only sheet with live clock, Stevenage weather, and one-tap task completion.
-                </p>
-            </a>
+      <h1 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight text-ink">
+        Daily Sheet
+      </h1>
+    </header>
 
-            <!-- PC Control Panel Option -->
-            <a 
-                href="pc.html" 
-                class="group block border-[1.5px] border-ink bg-transparent p-5 hover:bg-ink hover:text-paper transition-none"
-            >
-                <div class="flex items-center justify-between mb-1">
-                    <span class="font-mono text-xs uppercase tracking-[0.14em] font-semibold">
-                        02 / Desktop View
-                    </span>
-                    <span class="font-mono text-sm">&rarr;</span>
-                </div>
-                <h2 class="font-serif text-2xl font-medium">
-                    PC Control Panel
-                </h2>
-                <p class="font-serif text-sm text-charcoal group-hover:text-paperDark mt-1">
-                    Command center to write main tasks, attach sub-tasks, and manage your daily sheet.
-                </p>
-            </a>
+    <!-- Links to the phone display and desktop control panel. -->
+    <nav class="space-y-4" aria-label="Choose a Daily Sheet view">
+
+      <!-- Phone page: read-only daily display and task completion. -->
+      <a
+        href="phone.html"
+        class="group block border-[1.5px] border-ink bg-transparent p-5 hover:bg-ink hover:text-paper transition-none"
+      >
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-mono text-xs uppercase tracking-[0.14em] font-semibold">
+            01 / Mobile View
+          </span>
+          <span class="font-mono text-sm" aria-hidden="true">→</span>
         </div>
 
-        <footer class="mt-8 pt-4 border-t border-dashed border-[#888888] text-center">
-            <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal">
-                Select your current device to continue
-            </p>
-        </footer>
+        <h2 class="font-serif text-2xl font-medium">
+          Phone Display
+        </h2>
 
-    </main>
+        <p class="font-serif text-sm text-charcoal group-hover:text-paperDark mt-1">
+          Clean read-only sheet with live clock, Stevenage weather, and one-tap task completion.
+        </p>
+      </a>
 
+      <!-- PC page: create and manage tasks from a desktop device. -->
+      <a
+        href="pc.html"
+        class="group block border-[1.5px] border-ink bg-transparent p-5 hover:bg-ink hover:text-paper transition-none"
+      >
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-mono text-xs uppercase tracking-[0.14em] font-semibold">
+            02 / Desktop View
+          </span>
+          <span class="font-mono text-sm" aria-hidden="true">→</span>
+        </div>
+
+        <h2 class="font-serif text-2xl font-medium">
+          PC Control Panel
+        </h2>
+
+        <p class="font-serif text-sm text-charcoal group-hover:text-paperDark mt-1">
+          Command center to write main tasks, attach sub-tasks, and manage your daily sheet.
+        </p>
+      </a>
+    </nav>
+
+    <!-- Small instruction at the bottom of the page. -->
+    <footer class="mt-8 pt-4 border-t border-dashed border-[#888888] text-center">
+      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-charcoal">
+        Select your current device to continue
+      </p>
+    </footer>
+  </main>
+
+  <!-- Shared script provides site-wide features where applicable. -->
+  <script type="module" src="shared.js"></script>
 </body>
 </html>
